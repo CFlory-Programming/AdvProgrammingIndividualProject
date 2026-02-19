@@ -13,7 +13,10 @@ If multiple of the same files were accidentally downloaded with different names,
 2. Collections
     - HashMaps (File's hash or size as a key. File path as the value. If key == doesExist, then a duplicate is found)
     - Lists (Display the results on the GUI)
-3. GUI Controls (Buttons to trigger the scan. Text box to input file paths. List / scroll pane to show results)
+3. GUI Controls
+    - Buttons to trigger the scan
+    - Text box to input file paths
+    - List / scroll pane to show results
 4. Sorting and Filtering
     - Sort duplicates by size or date
     - Filter duplicates by file type (.jpg , .docx)
