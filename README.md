@@ -11,7 +11,7 @@ If multiple of the same files were accidentally downloaded with different names,
     - Scan computer path and read file data with Input/Output
     - Exception handling to prevent crashing for folders without permissions
 2. Collections
-    - HashMaps (File's hash or size as a key. File path as the value. If key == doesExist, then a duplicate is found)
+    - HashMaps (File's hash or size as a key. File path as the value. If the key already exists, then a duplicate is found)
     - Lists (Display the results on the GUI)
 3. GUI Controls
     - Buttons to trigger the scan
