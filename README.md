@@ -1,10 +1,10 @@
-# File Duplicate Detector
+# CarbonCopy (CC)
 
 ## Intention
-- Computer cleanup and organization (MacOS and Windows)
+- Computer cleanup and organization by finding replica files
 
-##
-If multiple of the same files were accidentally downloaded with different names, for example two identical word documents or photos on your computer, this program will scan whichever path you choose and show you which files are duplicates, which aren't, why they were flagged as duplicates, and the options to delete duplicates.
+## Description
+- If multiple replica files were accidentally downloaded with different names, for example two word documents with the same content, this program will scan whichever directory you choose and show you which files are replicas, which aren't, why they were flagged as duplicates, and the options to delete duplicates.
 
 ## Installation Requirements
 
@@ -13,6 +13,12 @@ If multiple of the same files were accidentally downloaded with different names,
 - File content detection
 - File metadata detection (Date created, last updated)
 - Supports images, videos, word documents, google documents, and more!
+- Exortable Logs (.txt report of what was deleted)
+- Warning prompts with an overview before deleting any files
+
+## Platforms
+- MacOS
+- Windows
 
 ## Year Two Concepts
 1. I/O and Excpetion Handling
