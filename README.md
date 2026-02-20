@@ -9,6 +9,10 @@ If multiple of the same files were accidentally downloaded with different names,
 ## Installation Requirements
 
 ## Feature List
+- File hash detection
+- File content detection
+- File metadata detection (Date created, last updated)
+- Supports images, videos, word documents, google documents, and more!
 
 ## Year Two Concepts
 1. I/O and Excpetion Handling
