@@ -6,7 +6,10 @@
 ## Description
 - If multiple replica files were accidentally downloaded with different names, for example two word documents with the same content, this program will scan whichever directory you choose and show you which files are replicas, which aren't, why they were flagged as duplicates, and the options to delete duplicates.
 
-## Installation Requirements
+## Installation Instructions
+1. Click on CarbonCopy.exe
+2. Download CarbonCopy.exe
+3. Open with admin privileges
 
 ## Feature List
 - File hash detection
