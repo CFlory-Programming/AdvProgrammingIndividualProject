@@ -16,7 +16,7 @@
 - File content detection
 - File metadata detection (Date created, last updated)
 - Supports images, videos, word documents, google documents, and more!
-- Exortable Logs (.txt report of what was deleted)
+- Exportable Logs (.txt report of what was deleted)
 - Warning prompts with an overview before deleting any files
 
 ## Platforms
