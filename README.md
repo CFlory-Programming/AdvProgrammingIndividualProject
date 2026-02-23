@@ -41,6 +41,6 @@
     - Use recursion to scan the entire chosen directory, including sub-folders, until every file is reached
   
 ### 📐 UML Diagram
-![UML](https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/resources/UML.png?raw=true)
+![UML](https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/images/UML.png?raw=true)
 6. Inheritance or Packages
     - Specific sub-classes or seperate packages to handle the different file paths, system priviledges, and file extensions
