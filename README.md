@@ -16,7 +16,7 @@
 - File content detection
 - File metadata detection (Date created, last updated)
 - Supports images, videos, word documents, google documents, and more!
-- Exortable Logs (.txt report of what was deleted)
+- Exportable Logs (.txt report of what was deleted)
 - Warning prompts with an overview before deleting any files
 
 ## Platforms
@@ -41,3 +41,6 @@
     - Use recursion to scan the entire chosen directory, including sub-folders, until every file is reached
 6. Inheritance or Packages
     - Specific sub-classes or seperate packages to handle the different file paths, system priviledges, and file extensions
+
+### 📐 UML Diagram
+![UML](https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/images/UML.png?raw=true)
