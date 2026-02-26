@@ -1,9 +1,14 @@
 import processing.core.PApplet;
+import javax.swing.JFileChooser;
+import java.io.File;
 
 public class Main extends PApplet {
 
+    private Button fileSelectButton;
+    private String selectedFilePath = "No file selected";
+
     // Boolean to indicate if the start screen is activated or not
-    public static boolean startScreen = true;
+    private boolean isStartScreenVisible = true;
 
     public static void main(String[] args) {
         // Start the PApplet in a new window
@@ -20,6 +25,13 @@ public class Main extends PApplet {
     public void setup() {
         // Set initial background color
         background(255);
+
+        int buttonWidth = 200;
+        int buttonHeight = 50;
+        int centerX = (width / 2) - (buttonWidth / 2);
+        int centerY = (height / 2) - (buttonHeight / 2);
+
+        fileSelectButton = new Button(this, centerX, centerY, buttonWidth, buttonHeight, "Choose a File");
     }
 
     @Override
@@ -27,45 +39,72 @@ public class Main extends PApplet {
         // Window should begin with a blank white screen
         background(255);
 
-        // If the user clicks their mouse, the start screen should disappear
-        if (mousePressed) {
-            startScreen = false;
-        }
 
-        if (startScreen) {
-            // Display the start screen
-            fill(255, 255, 0); // Yellow text
-            textAlign(CENTER);
-            textSize(30);
-            text("WARNING: USE THIS PROGRAM WITH CAUTION AS IT HAS THE ABILITY TO DELETE ANY FILE ON YOUR COMPUTER!", 0, height/2, width, height); // Warning Text
-
+        if (isStartScreenVisible) {
+            drawWarningScreen();
         } else {
-            // Begin the program
-            fill(255, 0, 0); // Red Text
-            textAlign(CENTER);
-            textSize(48);
-            // Draw 2 texts with +1 pixel offset on x-axis to create fake bold
-            text("Duplicate File Finder", width/2, 50); // Title
-            text("Duplicate File Finder", width/2 + 1, 50); // Title
-
-            boolean hover = mouseX > width/2 - 100 && mouseX < width/2 + 100 && mouseY > height/2 - 25 && mouseY < height/2 + 25;
-            if (hover) {
-                fill(200, 255, 255); // Lighter blue color when hovering
-            } else {
-                fill(255, 255, 255); // Normal color
-            }
-
-            rect(width/2 - 100, height/2 - 25, 200, 50); // Button
-
-            fill(0); // Black text
-            textSize(12);
-            text("Choose a File", width/2, height/2 + 7); // Button Text
-
-            text("Choose a file below to check if they are duplicates", width/2, height/2 + 80); // Instructions
-
-
+            drawMainScreen();
         }
     }
 
 
+    private void drawWarningScreen() {
+            // Display the start screen
+            background(255);
+            fill(255, 204, 0); // Yellow text
+            textAlign(CENTER, CENTER);
+            textSize(24);
+
+            int sideMargin = 40;
+            int topMargin = 50;
+            int textBoxWidth = width - (sideMargin * 2); // 40 px on each side margin
+            int textboxHeight = height - (topMargin * 2); // 50 px on top and bottom margin
+
+            String warningMessage = "WARNING: USE THIS PROGRAM WITH CAUTION AS IT HAS THE ABILITY TO DELETE ANY FILE ON YOUR COMPUTER!";
+
+            text(warningMessage, sideMargin, topMargin, textBoxWidth, textboxHeight); // Warning Text
+        }
+
+    private void drawMainScreen() {
+        fileSelectButton.display();
+
+        int textYPosition = height / 2 + 80;
+        int sideMargin = 25;
+        int topMargin = 50;
+        int textBoxWidth = width - (sideMargin * 2); // 25 px on each side margin
+        int textboxHeight = height - (topMargin * 2); // 50 px on top and bottom margin
+
+        fill(50, 0, 0);
+        textAlign(CENTER, TOP); // Center top of the screen, growing down
+        textSize(14);
+
+        // Use fake bold effect by drawing twice and change x by 1
+        text("CarbonCopy", width / 2, 40);
+        text("CarbonCopy", width / 2 + 1, 40);
+
+        String displayMessage = "Current File:\n" + selectedFilePath;
+        text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
+    }
+
+    @Override
+    public void mousePressed() {
+        if (isStartScreenVisible) {
+            isStartScreenVisible = false;
+        } else if (fileSelectButton.isMouseHovering()) {
+            openFileBrowser();
+        }
+    }
+
+    private void openFileBrowser() {
+        // Launces the file browser for any platform? (DO more research) (It looks really OLD on windows)
+
+        JFileChooser fileChooser = new JFileChooser();
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            selectedFilePath = selectedFile.getAbsolutePath();
+            System.out.println("File path selected: " + selectedFilePath);
+        }
+    }
 }
