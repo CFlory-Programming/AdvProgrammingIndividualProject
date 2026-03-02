@@ -97,14 +97,11 @@ public class Main extends PApplet {
 
     private void openFileBrowser() {
         // Launces the file browser for any platform? (DO more research) (It looks really OLD on windows)
+        selectInput("Select a folder to scan for duplicates:", "folderSelected");
+    }
 
-        JFileChooser fileChooser = new JFileChooser();
-        int result = fileChooser.showOpenDialog(null);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            selectedFilePath = selectedFile.getAbsolutePath();
-            System.out.println("File path selected: " + selectedFilePath);
-        }
+    public void folderSelected(File selectedFolder) {
+        selectedFilePath = selectedFolder.getAbsolutePath();
+        System.out.println("Folder path selected: " + selectedFilePath);
     }
 }
