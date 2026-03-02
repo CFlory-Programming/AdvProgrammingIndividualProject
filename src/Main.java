@@ -1,11 +1,10 @@
 import processing.core.PApplet;
-import javax.swing.JFileChooser;
 import java.io.File;
 
 public class Main extends PApplet {
 
-    private Button fileSelectButton;
-    private String selectedFilePath = "No file selected";
+    private Button folderSelectButton;
+    private String selectedFolderPath = "No folder selected";
 
     // Boolean to indicate if the start screen is activated or not
     private boolean isStartScreenVisible = true;
@@ -26,12 +25,14 @@ public class Main extends PApplet {
         // Set initial background color
         background(255);
 
+
+        // Creating the "Choose a Folder" button
         int buttonWidth = 200;
         int buttonHeight = 50;
         int centerX = (width / 2) - (buttonWidth / 2);
         int centerY = (height / 2) - (buttonHeight / 2);
 
-        fileSelectButton = new Button(this, centerX, centerY, buttonWidth, buttonHeight, "Choose a File");
+        folderSelectButton = new Button(this, centerX, centerY, buttonWidth, buttonHeight, "Choose a Folder");
     }
 
     @Override
@@ -66,7 +67,7 @@ public class Main extends PApplet {
         }
 
     private void drawMainScreen() {
-        fileSelectButton.display();
+        folderSelectButton.display();
 
         int textYPosition = height / 2 + 80;
         int sideMargin = 25;
@@ -82,7 +83,7 @@ public class Main extends PApplet {
         text("CarbonCopy", width / 2, 40);
         text("CarbonCopy", width / 2 + 1, 40);
 
-        String displayMessage = "Current File:\n" + selectedFilePath;
+        String displayMessage = "Current Folder:\n" + selectedFolderPath;
         text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
     }
 
@@ -90,18 +91,20 @@ public class Main extends PApplet {
     public void mousePressed() {
         if (isStartScreenVisible) {
             isStartScreenVisible = false;
-        } else if (fileSelectButton.isMouseHovering()) {
+        } else if (folderSelectButton.isMouseHovering()) {
             openFileBrowser();
         }
     }
 
     private void openFileBrowser() {
-        // Launces the file browser for any platform? (DO more research) (It looks really OLD on windows)
-        selectInput("Select a folder to scan for duplicates:", "folderSelected");
+        // Launces the file browser for any platform (Processing's built in selectInput)
+        selectFolder("Select a folder to scan for duplicates:", "folderSelected");
     }
 
     public void folderSelected(File selectedFolder) {
-        selectedFilePath = selectedFolder.getAbsolutePath();
-        System.out.println("Folder path selected: " + selectedFilePath);
+        selectedFolderPath = selectedFolder.getAbsolutePath();
+        System.out.println("Folder path selected: " + selectedFolderPath);
     }
+
+
 }
