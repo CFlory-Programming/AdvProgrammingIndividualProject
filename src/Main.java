@@ -106,18 +106,18 @@ public class Main extends PApplet {
             boolean hasDuplicates = false;
 
             for (java.util.List<File> group: duplicateFiles.values()) {
-                if (group.size() > 1) {
+                if (group.size() > 1) { // Only draw the group if it has more than 1 file
                     hasDuplicates = true;
                     text("Group " + groupNumber + ":", sideMargin, listGap);
-                    listGap += 20;
+                    listGap += 20; // Change the y position for the next line of text
 
                     for (File file: group) {
-                        text("  - " + file.getName(), sideMargin, listGap);
-                        listGap += 20;
+                        text("  - " + file.getName(), sideMargin, listGap); // Extra spaces for an indent
+                        listGap += 20; // Change the y position for the next line of text
                     }
 
                     listGap += 10;
-                    groupNumber++;
+                    groupNumber++; // Increase the group number by one so if any other duplicate files with the same content get put in their own group
                 }
             }
 
@@ -130,9 +130,9 @@ public class Main extends PApplet {
     @Override
     public void mousePressed() {
         if (isStartScreenVisible) {
-            isStartScreenVisible = false;
-        } else if (folderSelectButton.isMouseHovering()) {
-            if (duplicateFiles != null) {
+            isStartScreenVisible = false; // Hide the start screen when the mouse is clicked
+        } else if (folderSelectButton.isMouseHovering()) { // Check if the button is being clicked
+            if (duplicateFiles != null) { // Check if any files have been scanned already
                 duplicateFiles = null; // Clear previous results when selecting a new folder
                 selectedFolderPath = "No folder selected"; // Reset the displayed folder path
             } else {
@@ -147,11 +147,11 @@ public class Main extends PApplet {
     }
 
     public void folderSelected(File selectedFolder) {
-        selectedFolderPath = selectedFolder.getAbsolutePath();
+        selectedFolderPath = selectedFolder.getAbsolutePath(); // The user/desktop/AdvProgrammingIndividualProject thing, it can get LONG
         System.out.println("Folder path selected: " + selectedFolderPath);
 
         // Scan for duplicate files
-        duplicateFiles = fileScanner.scanForDuplicates(selectedFolder);
+        duplicateFiles = fileScanner.scanForDuplicates(selectedFolder); // Call the method in FileScanner.java
     }
 
 

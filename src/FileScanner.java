@@ -17,21 +17,20 @@ public class FileScanner {
         Map<String, List<File>> duplicateFiles = new HashMap<>();
 
         // Get all files and subdirectories in the selected folder
-        File[] files = folder.listFiles();
+        File[] files = folder.listFiles(); // Gets an array of all the files and subdirectories in the selected folder
         if (files != null) {
             // Iterate through each item in the folder
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".txt")) { // Check if It's a file, and It's name ends with "txt"
                     try {
-                        String content = new String(Files.readAllBytes(file.toPath())); // Read file content as a string
+                        String content = new String(Files.readAllBytes(file.toPath())); // Read file content (bytes) as a string
 
-                        // Check if this content has been seen before
-                        if (duplicateFiles.containsKey(content)) {
+                        if (duplicateFiles.containsKey(content)) { // Check if this content has been seen before
                             duplicateFiles.get(content).add(file); // Add the file to the existing list of duplicate files (Line 18)
-                        } else {
-                            List<File> duplicateFileList = new ArrayList<>(); // Create a new list if this content hasn't been seen before
+                        } else { // Create a new list if this content hasn't been seen before
+                            List<File> duplicateFileList = new ArrayList<>();
                             duplicateFileList.add(file);
-                            duplicateFiles.put(content, duplicateFileList); // Create a new entry for this content
+                            duplicateFiles.put(content, duplicateFileList); // Put the file byte content in the duplicateFileList
                         }
                     } catch (Exception e) {
                         System.out.println("Error reading file: " + file.getName());
