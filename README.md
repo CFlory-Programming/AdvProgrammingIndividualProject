@@ -48,9 +48,9 @@
 2. Click ```Download ZIP```
 3. Unzip the file
 4. Navigate to the project directory in a new terminal
-5. 🔨 Type ```javac -cp lib/core.jar src/*.java``` to **compile**
-6. ▶️ For **Windows**, type ```java -cp "lib/core.jar;src" Main``` to **run**
-7. 🍎 For **Mac and Linux**, type ```java -cp "lib/core.jar:src" Main``` to **run**
+5. Type ```javac -cp lib/core.jar src/*.java``` to **compile**
+6. For **Windows**, type ```java -cp "lib/core.jar;src" Main``` to **run**
+7. For **Mac and Linux**, type ```java -cp "lib/core.jar:src" Main``` to **run**
 
 ### 📐 UML Diagram
 ![UML](https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/images/UML.png?raw=true)
