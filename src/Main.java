@@ -1,5 +1,6 @@
 import processing.core.PApplet;
 import java.io.File;
+import java.util.Map;
 
 public class Main extends PApplet {
 
@@ -8,6 +9,9 @@ public class Main extends PApplet {
 
     // Boolean to indicate if the start screen is activated or not
     private boolean isStartScreenVisible = true;
+
+    private FileScanner fileScanner;
+    private Map<String, java.util.List<File>> duplicateFiles;
 
     public static void main(String[] args) {
         // Start the PApplet in a new window
@@ -24,6 +28,9 @@ public class Main extends PApplet {
     public void setup() {
         // Set initial background color
         background(255);
+
+        // Initialize the FileScanner
+        fileScanner = new FileScanner();
 
 
         // Creating the "Choose a Folder" button
@@ -85,6 +92,39 @@ public class Main extends PApplet {
 
         String displayMessage = "Current Folder:\n" + selectedFolderPath;
         text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
+
+        //Show the results if the analysis has been done
+        if (duplicateFiles != null) {
+            fill(0, 0, 0);
+            textSize(12);
+            textAlign(LEFT, TOP);
+
+            // Auto format the possible duplicate files on the y axis so they don't overlap
+            int listGap = 100;
+            // Groups will be the files that have the same content
+            int groupNumber = 1;
+            boolean hasDuplicates = false;
+
+            for (java.util.List<File> group: duplicateFiles.values()) {
+                if (group.size() > 1) {
+                    hasDuplicates = true;
+                    text("Group " + groupNumber + ":", sideMargin, listGap);
+                    listGap += 20;
+
+                    for (File file: group) {
+                        text("  - " + file.getName(), sideMargin, listGap);
+                        listGap += 20;
+                    }
+
+                    listGap += 10;
+                    groupNumber++;
+                }
+            }
+
+            if (!hasDuplicates) {
+                text("No duplicate .txt files found.", sideMargin, listGap);
+            }
+        }
     }
 
     @Override
@@ -92,18 +132,26 @@ public class Main extends PApplet {
         if (isStartScreenVisible) {
             isStartScreenVisible = false;
         } else if (folderSelectButton.isMouseHovering()) {
-            openFileBrowser();
+            if (duplicateFiles != null) {
+                duplicateFiles = null; // Clear previous results when selecting a new folder
+                selectedFolderPath = "No folder selected"; // Reset the displayed folder path
+            } else {
+                openFileBrowser(); // This would be the first time opening the program
+            }
         }
     }
 
     private void openFileBrowser() {
-        // Launces the file browser for any platform (Processing's built in selectInput)
+        // Launces the file browser for any platform (Processing's built in selectInput) - ALSO THIS LOOKS WEIRD ON WINDOWS, BUT FINE ON MAC
         selectFolder("Select a folder to scan for duplicates:", "folderSelected");
     }
 
     public void folderSelected(File selectedFolder) {
         selectedFolderPath = selectedFolder.getAbsolutePath();
         System.out.println("Folder path selected: " + selectedFolderPath);
+
+        // Scan for duplicate files
+        duplicateFiles = fileScanner.scanForDuplicates(selectedFolder);
     }
 
 
