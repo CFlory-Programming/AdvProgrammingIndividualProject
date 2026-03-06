@@ -10,8 +10,6 @@ public class FileScanner {
     public String rootPath;
     public HashMap results;
     public boolean isRecursive;
-    private DuplicateMap duplicateMap;
-    private FileAnalyzer fileAnalyzer;
 
     // Scan for duplicates by reading the file's bytes FOR NOW
     public Map<String, List<File>> scanForDuplicates(File folder) {
