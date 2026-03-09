@@ -24,12 +24,12 @@
 - Windows
 
 ## Year Two Concepts
-1. I/O and Excpetion Handling
+1. **I/O and Excpetion Handling**
     - Scan computer path and read file data with Input/Output
     - Exception handling to prevent crashing for folders without permissions
-2. Collections
+2. **Collections**
     - HashMaps (File's hash or size as a key. File path as the value. If the key already exists, then a duplicate is found)
-    - Lists (Display the results on the GUI)
+    - ArrayLists (Display the results on the GUI)
 3. GUI Controls
     - Buttons to trigger the scan
     - Text box to input file paths
@@ -41,7 +41,7 @@
     - Use recursion to scan the entire chosen directory, including sub-folders, until every file is reached
 6. Inheritance or Packages
     - Specific sub-classes or seperate packages to handle the different file paths, system priviledges, and file extensions
-7. Ehanced For Loops
+7. **Ehanced For Loops**
     - Getting all the duplicate files and assigning them to a group variable
     - Displaying all the duplicate files in their respective groups
     - Getting all the files in a directory
