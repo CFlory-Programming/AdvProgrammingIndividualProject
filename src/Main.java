@@ -33,7 +33,7 @@ public class Main extends PApplet {
         fileScanner = new FileScanner();
 
 
-        // Creating the "Choose a Folder" button
+        // Create the "Choose a Folder" button
         int buttonWidth = 200;
         int buttonHeight = 50;
         int centerX = (width / 2) - (buttonWidth / 2);
@@ -49,7 +49,7 @@ public class Main extends PApplet {
 
 
         if (isStartScreenVisible) {
-            drawWarningScreen();
+            drawWarningScreen(); // DISCLOSURE OF DOOM
         } else {
             drawMainScreen();
         }
