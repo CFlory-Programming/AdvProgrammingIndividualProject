@@ -27,8 +27,8 @@ public class FileScanner {
 
                         if (duplicateFiles.containsKey(content)) { // Check if this content has been seen before
                             duplicateFiles.get(content).add(file); // Add the file to the existing list of duplicate files (Line 18)
-                        } else { // Create a new list if this content hasn't been seen before
-                            List<File> duplicateFileList = new ArrayList<>();
+                        } else {
+                            List<File> duplicateFileList = new ArrayList<>(); // Create a new list if this content hasn't been seen before
                             duplicateFileList.add(file);
                             duplicateFiles.put(content, duplicateFileList); // Put the file byte content in the duplicateFileList
                         }
