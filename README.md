@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/resources/CarbonCopyLogo.png?raw=true" alt="Logo" width="300"/>
+  <img src="https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/images/CarbonCopyLogo.png?raw=true" alt="Logo" width="300"/>
 </p>
 
 # CarbonCopy (CC)
