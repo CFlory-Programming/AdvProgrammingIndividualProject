@@ -60,4 +60,4 @@
 ### 📐 UML Diagram
 ![UML](https://github.com/CFlory-Programming/AdvProgrammingIndividualProject/blob/main/images/UML.png?raw=true)
 
-Similarity detection for images??: [https://oxygene.sk/2011/01/how-does-chromaprint-work/](ImageSimilarityDetection)
+Similarity detection for audio??: [https://oxygene.sk/2011/01/how-does-chromaprint-work/](AudioSimilarityDetection)
