@@ -41,6 +41,10 @@
     - Use recursion to scan the entire chosen directory, including sub-folders, until every file is reached
 6. Inheritance or Packages
     - Specific sub-classes or seperate packages to handle the different file paths, system priviledges, and file extensions
+7. Ehanced For Loops
+    - Getting all the duplicate files and assigning them to a group variable
+    - Displaying all the duplicate files in their respective groups
+    - Getting all the files in a directory
 
 ## How to Run the Project From the Terminal
 
