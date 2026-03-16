@@ -4,10 +4,16 @@ import java.util.Map;
 
 public class Main extends PApplet {
 
+    public static PApplet sketch;
+
     private Button folderSelectButton;
+    private Button addFilesButton;
+    private Button seeResultsButton;
+    private Button deleteFilesButton;
+    private ProgressBar progressBar;
     private String selectedFolderPath = "No folder selected";
 
-    // Boolean to indicate if the start screen is activated or not
+    // Boolean to indicate if the various screens is activated or not
     private boolean isStartScreenVisible = true;
 
     private FileScanner fileScanner;
@@ -26,11 +32,16 @@ public class Main extends PApplet {
 
     @Override
     public void setup() {
+        sketch = this;
+
         // Set initial background color
         background(255);
 
         // Initialize the FileScanner
         fileScanner = new FileScanner();
+
+        progressBar = new ProgressBar(50, height - 70, width - 100, 20);
+
 
 
         // Create the "Choose a Folder" button
@@ -40,6 +51,9 @@ public class Main extends PApplet {
         int centerY = (height / 2) - (buttonHeight / 2);
 
         folderSelectButton = new Button(this, centerX, centerY, buttonWidth, buttonHeight, "Choose a Folder");
+        addFilesButton = new Button(this, centerX, centerY + 60, buttonWidth, buttonHeight, "Add Files");
+        seeResultsButton = new Button(this, centerX, centerY + 120, buttonWidth, buttonHeight + 30, "See Results");
+        deleteFilesButton = new Button(this, centerX, centerY + 180, buttonWidth, buttonHeight, "Delete Files");
     }
 
     @Override
@@ -57,8 +71,9 @@ public class Main extends PApplet {
 
 
     private void drawWarningScreen() {
-            // Display the start screen
+        if (isStartScreenVisible) {
             background(255);
+
             fill(255, 204, 0); // Yellow text
             textAlign(CENTER, CENTER);
             textSize(24);
@@ -72,8 +87,11 @@ public class Main extends PApplet {
 
             text(warningMessage, sideMargin, topMargin, textBoxWidth, textboxHeight); // Warning Text
         }
+    }
 
     private void drawMainScreen() {
+        background(255);
+
         folderSelectButton.display();
 
         int textYPosition = height / 2 + 80;
@@ -89,6 +107,49 @@ public class Main extends PApplet {
         // Use fake bold effect by drawing twice and change x by 1
         text("CarbonCopy", width / 2, 40);
         text("CarbonCopy", width / 2 + 1, 40);
+
+        String displayMessage = "Current Folder:\n" + selectedFolderPath;
+        text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
+
+        //Show the results if the analysis has been done
+        if (duplicateFiles != null) {
+            fill(0, 0, 0);
+            textSize(12);
+            textAlign(LEFT, TOP);
+
+            // Auto format the possible duplicate files on the y axis so they don't overlap
+            int listGap = 100;
+            // Groups will be the files that have the same content
+            boolean hasDuplicates = false;
+
+            for (java.util.List<File> group: duplicateFiles.values()) {
+                if (group.size() > 1) { // Only draw the group if it has more than 1 file
+                    hasDuplicates = true;
+                    drawScanningScreen();
+                }
+            }
+
+            if (!hasDuplicates) {
+                text("No duplicate .txt files found.", sideMargin, listGap);
+            }
+        }
+    }
+
+    private void drawScanningScreen() {
+        background(255);
+
+        addFilesButton.display();
+        seeResultsButton.display();
+
+        int textYPosition = height / 2 + 180;
+        int sideMargin = 25;
+        int topMargin = 50;
+        int textBoxWidth = width - (sideMargin * 2); // 25 px on each side margin
+        int textboxHeight = height - (topMargin * 2); // 50 px on top and bottom margin
+
+        fill(50, 0, 0);
+        textAlign(CENTER, TOP); // Center top of the screen, growing down
+        textSize(14);
 
         String displayMessage = "Current Folder:\n" + selectedFolderPath;
         text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
@@ -120,11 +181,9 @@ public class Main extends PApplet {
                     groupNumber++; // Increase the group number by one so if any other duplicate files with the same content get put in their own group
                 }
             }
-
-            if (!hasDuplicates) {
-                text("No duplicate .txt files found.", sideMargin, listGap);
-            }
         }
+
+        progressBar.display();
     }
 
     @Override
@@ -138,6 +197,9 @@ public class Main extends PApplet {
             } else {
                 openFileBrowser(); // This would be the first time opening the program
             }
+        } else if (addFilesButton.isMouseHovering()) {
+            openFileBrowser();
+
         }
     }
 
