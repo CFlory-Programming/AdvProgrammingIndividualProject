@@ -39,10 +39,7 @@ public class FileScanner {
             }
         }
 
-        // Remove entries that do not have duplicates (only one file with that content)
-        duplicateFiles.entrySet().removeIf(entry -> entry.getValue().size() <= 1); // Lambda expression operator (Do more research)
-
-        // Return the map containing only actual duplicates
+        // Return the map containing all files so both duplicate and non-duplicate files will be shown in the results screen
         return duplicateFiles;
     }
 
@@ -52,9 +49,5 @@ public class FileScanner {
 
     public List<File> filterFiles(File files) {
         return null;
-    }
-
-    public static void main(String[] args) {
-
     }
 }

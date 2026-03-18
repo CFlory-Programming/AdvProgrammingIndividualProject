@@ -1,23 +1,32 @@
 import processing.core.PApplet;
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 public class Main extends PApplet {
 
     public static PApplet sketch;
 
+    private boolean deleteFunctionality = false; // TESTING!!!!!!!!!!!!!!
+
     private Button folderSelectButton;
-    private Button addFilesButton;
     private Button seeResultsButton;
-    private Button deleteFilesButton;
+    private Button deleteButton;
     private ProgressBar progressBar;
     private String selectedFolderPath = "No folder selected";
 
-    // Boolean to indicate if the various screens is activated or not
-    private boolean isStartScreenVisible = true;
+    // Screen state tracking
+    private enum ScreenState {WARNING, MAIN, SCANNING, RESULTS, STATS} // Enumeration
+    private ScreenState currentScreen = ScreenState.WARNING;
 
     private FileScanner fileScanner;
     private Map<String, java.util.List<File>> duplicateFiles;
+
+    private WarningScreen warningScreen;
+    private MainScreen mainScreen;
+    private ScanningScreen scanningScreen;
+    private ResultsScreen resultsScreen;
+    private StatsScreen statsScreen;
 
     public static void main(String[] args) {
         // Start the PApplet in a new window
@@ -42,8 +51,6 @@ public class Main extends PApplet {
 
         progressBar = new ProgressBar(50, height - 70, width - 100, 20);
 
-
-
         // Create the "Choose a Folder" button
         int buttonWidth = 200;
         int buttonHeight = 50;
@@ -51,9 +58,17 @@ public class Main extends PApplet {
         int centerY = (height / 2) - (buttonHeight / 2);
 
         folderSelectButton = new Button(this, centerX, centerY, buttonWidth, buttonHeight, "Choose a Folder");
-        addFilesButton = new Button(this, centerX, centerY + 60, buttonWidth, buttonHeight, "Add Files");
         seeResultsButton = new Button(this, centerX, centerY + 120, buttonWidth, buttonHeight + 30, "See Results");
-        deleteFilesButton = new Button(this, centerX, centerY + 180, buttonWidth, buttonHeight, "Delete Files");
+        deleteButton = new Button(this, centerX, centerY + 180, buttonWidth, buttonHeight, "DELETE");
+        deleteButton.setNormalColor(200, 0, 0);
+        deleteButton.setHoverColor(255, 0, 0);
+
+        // Initialize the screen objects
+        warningScreen = new WarningScreen(this);
+        mainScreen = new MainScreen(this, folderSelectButton);
+        scanningScreen = new ScanningScreen(this, seeResultsButton, progressBar);
+        resultsScreen = new ResultsScreen(this, deleteButton);
+        statsScreen = new StatsScreen(this);
     }
 
     @Override
@@ -61,145 +76,84 @@ public class Main extends PApplet {
         // Window should begin with a blank white screen
         background(255);
 
-
-        if (isStartScreenVisible) {
-            drawWarningScreen(); // DISCLOSURE OF DOOM
-        } else {
-            drawMainScreen();
+        switch (currentScreen) {
+            case WARNING:
+                warningScreen.display();
+                break;
+            case MAIN:
+                mainScreen.display();
+                break;
+            case SCANNING:
+                scanningScreen.display();
+                break;
+            case RESULTS:
+                resultsScreen.display();
+                break;
+            case STATS:
+                statsScreen.display();
+                break;
         }
-    }
-
-
-    private void drawWarningScreen() {
-        if (isStartScreenVisible) {
-            background(255);
-
-            fill(255, 204, 0); // Yellow text
-            textAlign(CENTER, CENTER);
-            textSize(24);
-
-            int sideMargin = 40;
-            int topMargin = 50;
-            int textBoxWidth = width - (sideMargin * 2); // 40 px on each side margin
-            int textboxHeight = height - (topMargin * 2); // 50 px on top and bottom margin
-
-            String warningMessage = "WARNING: USE THIS PROGRAM WITH CAUTION AS IT HAS THE ABILITY TO DELETE ANY FILE ON YOUR COMPUTER!";
-
-            text(warningMessage, sideMargin, topMargin, textBoxWidth, textboxHeight); // Warning Text
-        }
-    }
-
-    private void drawMainScreen() {
-        background(255);
-
-        folderSelectButton.display();
-
-        int textYPosition = height / 2 + 80;
-        int sideMargin = 25;
-        int topMargin = 50;
-        int textBoxWidth = width - (sideMargin * 2); // 25 px on each side margin
-        int textboxHeight = height - (topMargin * 2); // 50 px on top and bottom margin
-
-        fill(50, 0, 0);
-        textAlign(CENTER, TOP); // Center top of the screen, growing down
-        textSize(14);
-
-        // Use fake bold effect by drawing twice and change x by 1
-        text("CarbonCopy", width / 2, 40);
-        text("CarbonCopy", width / 2 + 1, 40);
-
-        String displayMessage = "Current Folder:\n" + selectedFolderPath;
-        text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
-
-        //Show the results if the analysis has been done
-        if (duplicateFiles != null) {
-            fill(0, 0, 0);
-            textSize(12);
-            textAlign(LEFT, TOP);
-
-            // Auto format the possible duplicate files on the y axis so they don't overlap
-            int listGap = 100;
-            // Groups will be the files that have the same content
-            boolean hasDuplicates = false;
-
-            for (java.util.List<File> group: duplicateFiles.values()) {
-                if (group.size() > 1) { // Only draw the group if it has more than 1 file
-                    hasDuplicates = true;
-                    drawScanningScreen();
-                }
-            }
-
-            if (!hasDuplicates) {
-                text("No duplicate .txt files found.", sideMargin, listGap);
-            }
-        }
-    }
-
-    private void drawScanningScreen() {
-        background(255);
-
-        addFilesButton.display();
-        seeResultsButton.display();
-
-        int textYPosition = height / 2 + 180;
-        int sideMargin = 25;
-        int topMargin = 50;
-        int textBoxWidth = width - (sideMargin * 2); // 25 px on each side margin
-        int textboxHeight = height - (topMargin * 2); // 50 px on top and bottom margin
-
-        fill(50, 0, 0);
-        textAlign(CENTER, TOP); // Center top of the screen, growing down
-        textSize(14);
-
-        String displayMessage = "Current Folder:\n" + selectedFolderPath;
-        text(displayMessage, sideMargin, textYPosition, textBoxWidth, textboxHeight);
-
-        //Show the results if the analysis has been done
-        if (duplicateFiles != null) {
-            fill(0, 0, 0);
-            textSize(12);
-            textAlign(LEFT, TOP);
-
-            // Auto format the possible duplicate files on the y axis so they don't overlap
-            int listGap = 100;
-            // Groups will be the files that have the same content
-            int groupNumber = 1;
-            boolean hasDuplicates = false;
-
-            for (java.util.List<File> group: duplicateFiles.values()) {
-                if (group.size() > 1) { // Only draw the group if it has more than 1 file
-                    hasDuplicates = true;
-                    text("Group " + groupNumber + ":", sideMargin, listGap);
-                    listGap += 20; // Change the y position for the next line of text
-
-                    for (File file: group) {
-                        text("  - " + file.getName(), sideMargin, listGap); // Extra spaces for an indent
-                        listGap += 20; // Change the y position for the next line of text
-                    }
-
-                    listGap += 10;
-                    groupNumber++; // Increase the group number by one so if any other duplicate files with the same content get put in their own group
-                }
-            }
-        }
-
-        progressBar.display();
     }
 
     @Override
     public void mousePressed() {
-        if (isStartScreenVisible) {
-            isStartScreenVisible = false; // Hide the start screen when the mouse is clicked
-        } else if (folderSelectButton.isMouseHovering()) { // Check if the button is being clicked
-            if (duplicateFiles != null) { // Check if any files have been scanned already
-                duplicateFiles = null; // Clear previous results when selecting a new folder
-                selectedFolderPath = "No folder selected"; // Reset the displayed folder path
-            } else {
-                openFileBrowser(); // This would be the first time opening the program
-            }
-        } else if (addFilesButton.isMouseHovering()) {
-            openFileBrowser();
+        switch (currentScreen) {
+            case WARNING:
+                if (warningScreen.handleMousePressed()) {
+                    currentScreen = ScreenState.MAIN;
+                }
+                break;
+            case MAIN:
+                if (folderSelectButton.isMouseHovering()) {
+                    if (duplicateFiles != null) {
+                        duplicateFiles = null; // Clear the previous results if the user clicks the button again to select a new folder
+                        selectedFolderPath = "No folder selected"; // Reset the displayed folder path
+                    }
+                    openFileBrowser();
+                }
+                break;
+            case SCANNING:
+                if (seeResultsButton.isMouseHovering() && progressBar.isComplete()) {
+                    resultsScreen.setDuplicateFiles(duplicateFiles); // Pass the duplicate files to the results screen
+                    resultsScreen.setSelectedFolderPath(selectedFolderPath); // Pass the selected folder path to the results screen
+                    currentScreen = ScreenState.RESULTS;
+                }
+                break;
+            case RESULTS:
+                int NUKEOFDOOMResult = resultsScreen.handleMousePressed();
+                if (NUKEOFDOOMResult == 1) {
+                    // YES pressed: Get stats and show stats screen
+                    int deletedCount = 0;
+                    long freedStorage = 0;
+                    for (List<File> group : duplicateFiles.values()) {
+                        if (group.size() > 1) {
+                            for (File file : group) {
+                                deletedCount++;
+                                freedStorage += file.length();
 
+                                // IDK IF THIS WORKS
+                                System.out.println("Deleting file: " + file.getAbsolutePath());
+                                if (deleteFunctionality) {
+                                    file.delete();
+                                }
+                            }
+                        }
+                    }
+
+                    statsScreen.setStats(deletedCount, freedStorage);
+                    currentScreen = ScreenState.STATS;
+                } else if (NUKEOFDOOMResult == -1) {
+                    // NO pressed: Go back to main screen
+                    goHome();
+                } else if (deleteButton.isMouseHovering()) {
+                    resultsScreen.drawDeleteConfirmation();
+                }
+                break;
+            case STATS:
+                if (statsScreen.handleMousePressed() == 1) {
+                    goHome();
+                }
+                break;
         }
     }
 
@@ -212,9 +166,31 @@ public class Main extends PApplet {
         selectedFolderPath = selectedFolder.getAbsolutePath(); // The user/desktop/AdvProgrammingIndividualProject thing, it can get LONG
         System.out.println("Folder path selected: " + selectedFolderPath);
 
-        // Scan for duplicate files
-        duplicateFiles = fileScanner.scanForDuplicates(selectedFolder); // Call the method in FileScanner.java
+        // Call the method in FileScanner.java
+        duplicateFiles = fileScanner.scanForDuplicates(selectedFolder);
+
+        // Set the duplicate files in the scanning screen
+        scanningScreen.setDuplicateFiles(duplicateFiles);
+
+        // Switch to the scanning screen
+        currentScreen = ScreenState.SCANNING;
     }
 
+    private void goHome() {
+        // Reset state so user can start over
+        duplicateFiles = null;
+        selectedFolderPath = "No folder selected";
 
+        scanningScreen.setSelectedFolderPath(selectedFolderPath);
+        scanningScreen.setDuplicateFiles(null);
+
+        resultsScreen.setSelectedFolderPath(selectedFolderPath);
+        resultsScreen.setDuplicateFiles(null);
+
+        progressBar.reset();
+
+        statsScreen.setStats(0, 0);
+
+        currentScreen = ScreenState.MAIN;
+    }
 }

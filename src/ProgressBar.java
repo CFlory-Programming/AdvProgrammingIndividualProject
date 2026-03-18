@@ -17,14 +17,12 @@ public class ProgressBar {
 
         // Draw the filled portion of the progress bar
         Main.sketch.fill(100, 150, 255);
-        // for (int i = 0; i < progress; i++) {
-        //     double percentIncrease = Math.random();
-        //     Main.sketch.rect(x, y, (int)(width * (percentIncrease/100)), height);
-        // }
+
         progress += Math.random();
         if (progress > 100) {
             progress = 100;
         }
+
         Main.sketch.rect(x, y, (int)(width * (progress/100)), height);
 
         // Draw the border of the progress bar
@@ -32,5 +30,12 @@ public class ProgressBar {
         Main.sketch.stroke(0);
         Main.sketch.rect(x, y, width, height);
     }
-    
+
+    public boolean isComplete() {
+        return progress >= 100;
+    }
+
+    public void reset() {
+        progress = 0;
+    }
 }

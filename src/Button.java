@@ -8,6 +8,11 @@ public class Button {
     private int buttonWidth;
     private int buttonHeight;
     private String label;
+    private boolean isEnabled;
+
+    private int normalRGB = 200; // Default gray
+    private int hoverRGB = 150; // Default darker gray
+    private int disabledRGB = 100; // Default deep gray
 
     public Button(PApplet sketch, int x, int y, int width, int height, String label) {
         this.sketch = sketch;
@@ -16,15 +21,32 @@ public class Button {
         this.buttonWidth = width;
         this.buttonHeight = height;
         this.label = label;
+        this.isEnabled = true;
+    }
+
+    public void setNormalColor(int r, int g, int b) {
+        this.normalRGB = sketch.color(r, g, b);
+    }
+
+    public void setHoverColor(int r, int g, int b) {
+        this.hoverRGB = sketch.color(r, g, b);
+    }
+
+    public void setDisabledColor(int r, int g, int b) {
+        this.disabledRGB = sketch.color(r, g, b);
     }
 
     public void display() {
-        if (isMouseHovering()) {
-            sketch.fill(200, 255, 255); // Light blue color for when hovering over the button
+        if (!isEnabled) {
+            sketch.fill(disabledRGB);
+        } else if (isMouseHovering()) {
+            sketch.fill(hoverRGB);
         } else {
-            sketch.fill(255, 255, 255);
+            sketch.fill(normalRGB);
         }
 
+        sketch.stroke(0);
+        sketch.strokeWeight(1);
         sketch.rect(horizontalPosition, verticalPosition, buttonWidth, buttonHeight);
 
         sketch.fill(0, 0, 0); // Black
@@ -33,6 +55,11 @@ public class Button {
     }
 
     public boolean isMouseHovering() {
-        return sketch.mouseX > horizontalPosition && sketch.mouseX < horizontalPosition + buttonWidth && sketch.mouseY > verticalPosition && sketch.mouseY < verticalPosition + buttonHeight; // Check that mouse position is within bounds of button
+        return sketch.mouseX >= horizontalPosition && sketch.mouseX <= horizontalPosition + buttonWidth &&
+               sketch.mouseY >= verticalPosition && sketch.mouseY <= verticalPosition + buttonHeight;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.isEnabled = enabled;
     }
 }
