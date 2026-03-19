@@ -66,7 +66,7 @@ public class MainScreen {
 
     private void drawCarbonCopyLogo() {
         int logoX = sketch.width / 2;
-        int logoY = 70;
+        int logoY = 100;
         int logoSize = 50;
 
         // Display the CarbonCopyLogo.png image
