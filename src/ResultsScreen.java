@@ -129,7 +129,7 @@ public class ResultsScreen {
             }
 
             // Display non-duplicates
-            sketch.text("Non-Duplicate Files:", sideMargin, yPosition);
+            sketch.text("Non-Duplicate Files:", sideMargin + 10, yPosition, textBoxWidth, textBoxHeight);
             yPosition += 20;
 
             int xPosition = sideMargin;
