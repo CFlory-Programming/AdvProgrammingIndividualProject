@@ -66,10 +66,10 @@ public class ScanningScreen {
         // Display scanning status text
         if (progressBar.isComplete()) {
             sketch.fill(0, 200, 0); // Green
-            sketch.text("COMPLETED", sketch.width / 2 - 40, sketch.height - 90);
+            sketch.text("COMPLETED", sketch.width / 2 - 40, sketch.height - 120);
         } else {
             sketch.fill(255, 204, 0); // Yellow
-            sketch.text("IN PROGRESS", sketch.width / 2 - 50, sketch.height - 90);
+            sketch.text("IN PROGRESS", sketch.width / 2 - 50, sketch.height - 120);
         }
 
         progressBar.display();
