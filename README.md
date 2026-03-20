@@ -17,9 +17,9 @@
 
 ## Feature List
 - File hash detection
-- File content detection
-- File metadata detection (Date created, last updated)
-- Supports images, videos, word documents, google documents, and more!
+- File byte (content) detection
+- File metadata detection (last updated)
+- Supports text documents
 - Exportable Logs (.txt report of what was deleted)
 - Warning prompts with an overview before deleting any files
 
