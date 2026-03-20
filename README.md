@@ -5,7 +5,7 @@
 # CarbonCopy (CC)
 
 ## Intention
-- Computer cleanup and organization by finding replica files
+- Computer cleanup and organization by finding duplicate files
 
 ## Description
 - If multiple replica files were accidentally downloaded, for example two text files with the same content, this program will scan whichever directory you choose and show you which files are replicas, which aren't, why they were flagged as duplicates, and the option to delete the duplicates but keep the first downloaded version.
