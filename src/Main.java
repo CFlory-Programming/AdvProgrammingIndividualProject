@@ -7,7 +7,7 @@ public class Main extends PApplet {
 
     public static PApplet sketch;
 
-    private boolean deleteFunctionality = false; // TESTING!!!!!!!!!!!!!!
+    private boolean deleteFunctionality = true; // TESTING!!!!!!!!!!!!!!
 
     private Button folderSelectButton;
     private Button seeResultsButton;
@@ -49,7 +49,7 @@ public class Main extends PApplet {
         // Initialize the FileScanner
         fileScanner = new FileScanner();
 
-        progressBar = new ProgressBar(50, height - 70, width - 100, 20);
+        progressBar = new ProgressBar(50, height - 60, width - 100, 50);
 
         // Create the "Choose a Folder" button
         int buttonWidth = 200;
@@ -115,7 +115,6 @@ public class Main extends PApplet {
             case SCANNING:
                 if (seeResultsButton.isMouseHovering() && progressBar.isComplete()) {
                     resultsScreen.setDuplicateFiles(duplicateFiles); // Pass the duplicate files to the results screen
-                    resultsScreen.setSelectedFolderPath(selectedFolderPath); // Pass the selected folder path to the results screen
                     currentScreen = ScreenState.RESULTS;
                 }
                 break;
@@ -174,6 +173,8 @@ public class Main extends PApplet {
 
         // Switch to the scanning screen
         currentScreen = ScreenState.SCANNING;
+
+        scanningScreen.setSelectedFolderPath(selectedFolderPath); // Pass the selected folder path to the scanning screen
     }
 
     private void goHome() {
@@ -184,7 +185,6 @@ public class Main extends PApplet {
         scanningScreen.setSelectedFolderPath(selectedFolderPath);
         scanningScreen.setDuplicateFiles(null);
 
-        resultsScreen.setSelectedFolderPath(selectedFolderPath);
         resultsScreen.setDuplicateFiles(null);
 
         progressBar.reset();

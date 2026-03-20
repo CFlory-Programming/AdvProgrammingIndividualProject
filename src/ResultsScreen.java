@@ -10,14 +10,12 @@ public class ResultsScreen {
     private Button confirmNoButton;
     private boolean awaitingDeleteConfirmation;
 
-    private String selectedFolderPath;
     private Map<String, List<File>> duplicateFiles;
 
     public ResultsScreen(PApplet sketch, Button deleteButton) {
         this.sketch = sketch;
         this.deleteButton = deleteButton;
         this.awaitingDeleteConfirmation = false;
-        this.selectedFolderPath = "No folder selected";
         this.duplicateFiles = null;
 
         int buttonWidth = 120;
@@ -56,12 +54,6 @@ public class ResultsScreen {
         return 0;
     }
 
-    // Reset this in Main under function GoHome()
-
-    public void setSelectedFolderPath(String path) {
-        this.selectedFolderPath = path;
-    }
-
     public void setDuplicateFiles(Map<String, List<File>> duplicateFiles) {
         this.duplicateFiles = duplicateFiles;
     }
@@ -93,6 +85,9 @@ public class ResultsScreen {
             int iconSize = 30;
             int spacing = 10;
 
+            // Display duplicate files
+            sketch.text("Duplicate Files:", sideMargin, yPosition, textBoxWidth, textBoxHeight);
+
             // Display duplicates in groups
             int groupNumber = 1;
             for (List<File> group: duplicateFiles.values()) {
@@ -108,7 +103,7 @@ public class ResultsScreen {
                         sketch.strokeWeight(1);
                         sketch.rect(xPosition, yPosition, iconSize, iconSize, 5);
 
-                        processing.core.PImage icon = sketch.loadImage("images/CarbonCopyLogo.png");
+                        processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
                         if (icon != null) {
                             sketch.image(icon, xPosition, yPosition, iconSize, iconSize);
                         }
@@ -129,7 +124,7 @@ public class ResultsScreen {
             }
 
             // Display non-duplicates
-            sketch.text("Non-Duplicate Files:", sideMargin + 10, yPosition, textBoxWidth, textBoxHeight);
+            sketch.text("Non-Duplicate Files:", sideMargin, yPosition + 100, textBoxWidth, textBoxHeight);
             yPosition += 20;
 
             int xPosition = sideMargin;
@@ -142,7 +137,7 @@ public class ResultsScreen {
                         sketch.strokeWeight(1);
                         sketch.rect(xPosition, yPosition, iconSize, iconSize, 5);
 
-                        processing.core.PImage icon = sketch.loadImage("images/CarbonCopyLogo.png");
+                        processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
                         if (icon != null) {
                             sketch.image(icon, xPosition, yPosition, iconSize, iconSize);
                         }

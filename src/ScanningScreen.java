@@ -43,7 +43,7 @@ public class ScanningScreen {
         sketch.textSize(14);
 
         String displayMessage = "Scanning Folder:\n" + selectedFolderPath;
-        sketch.text(displayMessage, sideMargin, topMargin, textBoxWidth, 60);
+        sketch.text(displayMessage, sideMargin, topMargin, textBoxWidth, 100);
 
         // Show all files in the directory that will be scanned
         if (duplicateFiles != null) {
@@ -66,10 +66,10 @@ public class ScanningScreen {
         // Display scanning status text
         if (progressBar.isComplete()) {
             sketch.fill(0, 200, 0); // Green
-            sketch.text("COMPLETED", sketch.width / 2 - 40, sketch.height - 120);
+            sketch.text("COMPLETED", sketch.width / 2 - 30, sketch.height - 200);
         } else {
             sketch.fill(255, 204, 0); // Yellow
-            sketch.text("IN PROGRESS", sketch.width / 2 - 50, sketch.height - 120);
+            sketch.text("IN PROGRESS", sketch.width / 2 - 30, sketch.height - 200);
         }
 
         progressBar.display();
