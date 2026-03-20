@@ -3,12 +3,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.nio.file.Path;
 import java.nio.file.Files;
 
 public class FileScanner {
     public String rootPath;
-    public HashMap results;
     public boolean isRecursive;
 
     // Scan for duplicates by reading the file's bytes FOR NOW
@@ -41,13 +39,5 @@ public class FileScanner {
 
         // Return the map containing all files so both duplicate and non-duplicate files will be shown in the results screen
         return duplicateFiles;
-    }
-
-    public void startScan(Path path) {
-
-    }
-
-    public List<File> filterFiles(File files) {
-        return null;
     }
 }
