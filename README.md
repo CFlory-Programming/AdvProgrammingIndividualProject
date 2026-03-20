@@ -38,7 +38,7 @@
     - Buttons to trigger the scan
     - Text box to input file paths
     - List / scroll pane to show results
-4. Sorting and Filtering
+4. **Sorting and Filtering**
     - Find which duplicate file was created first and not delete it
 5. **Recursion**
     - Use recursion to scan the entire chosen directory, including sub-folders, until every file is reached
