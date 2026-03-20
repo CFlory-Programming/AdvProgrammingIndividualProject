@@ -8,7 +8,7 @@
 - Computer cleanup and organization by finding replica files
 
 ## Description
-- If multiple replica files were accidentally downloaded with different names, for example two word documents with the same content, this program will scan whichever directory you choose and show you which files are replicas, which aren't, why they were flagged as duplicates, and the options to delete duplicates.
+- If multiple replica files were accidentally downloaded, for example two text files with the same content, this program will scan whichever directory you choose and show you which files are replicas, which aren't, why they were flagged as duplicates, and the option to delete the duplicates but keep the first downloaded version.
 
 ## Installation Instructions
 1. Click on CarbonCopy.exe
@@ -34,17 +34,14 @@
 2. **Collections**
     - HashMaps (File's hash or size as a key. File path as the value. If the key already exists, then a duplicate is found)
     - ArrayLists (Display the results on the GUI)
-3. GUI Controls
+3. **GUI Controls**
     - Buttons to trigger the scan
     - Text box to input file paths
     - List / scroll pane to show results
 4. Sorting and Filtering
-    - Sort duplicates by size or date
-    - Filter duplicates by file type (.jpg , .docx)
-5. Recursion
+    - Find which duplicate file was created first and not delete it
+5. **Recursion**
     - Use recursion to scan the entire chosen directory, including sub-folders, until every file is reached
-6. Inheritance or Packages
-    - Specific sub-classes or seperate packages to handle the different file paths, system priviledges, and file extensions
 7. **Ehanced For Loops**
     - Getting all the duplicate files and assigning them to a group variable
     - Displaying all the duplicate files in their respective groups
