@@ -140,7 +140,7 @@ public class Main extends PApplet {
 
                                 System.out.println("Deleting file: " + file.getAbsolutePath());
 
-                                stringBuilder.append("Deleted files: ").append(file.getName()).append("\n");
+                                stringBuilder.append("Deleted file: ").append(file).append("\n");
 
                                 if (deleteFunctionality) {
                                     file.delete();
