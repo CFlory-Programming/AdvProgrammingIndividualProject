@@ -2,12 +2,19 @@ import processing.core.PApplet;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.IOException;
 
 public class Main extends PApplet {
 
     public static PApplet sketch;
 
-    private boolean deleteFunctionality = true; // TESTING!!!!!!!!!!!!!!
+    private boolean deleteFunctionality = false; // TESTING!!!!!!!!!!!!!!
+
+    // Export log
+    private Path folderPath = Path.of("duplicates");
+    private Path filePath = folderPath.resolve("deleted_files.txt");
 
     private Button folderSelectButton;
     private Button seeResultsButton;
@@ -21,6 +28,7 @@ public class Main extends PApplet {
 
     private FileScanner fileScanner;
     private Map<String, java.util.List<File>> duplicateFiles;
+    private StringBuilder stringBuilder = new StringBuilder();
 
     private WarningScreen warningScreen;
     private MainScreen mainScreen;
@@ -130,11 +138,19 @@ public class Main extends PApplet {
                                 deletedCount++;
                                 freedStorage += file.length();
 
-                                // IDK IF THIS WORKS
                                 System.out.println("Deleting file: " + file.getAbsolutePath());
+
+                                stringBuilder.append("Deleted files: ").append(file.getName()).append("\n");
+
                                 if (deleteFunctionality) {
                                     file.delete();
                                 }
+                            }
+                            // Write to the export log
+                            try {
+                                Files.writeString(filePath, stringBuilder.toString());
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                         }
                     }
