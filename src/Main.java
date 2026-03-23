@@ -13,7 +13,7 @@ public class Main extends PApplet {
     private boolean deleteFunctionality = false; // TESTING!!!!!!!!!!!!!!
 
     // Export log
-    private Path folderPath = Path.of("duplicates");
+    private Path folderPath = Path.of("exports");
     private Path filePath = folderPath.resolve("deleted_files.txt");
 
     private Button folderSelectButton;
