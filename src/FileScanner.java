@@ -9,35 +9,103 @@ public class FileScanner {
     public String rootPath;
     public boolean isRecursive;
 
-    // Scan for duplicates by reading the file's bytes FOR NOW
-    public Map<String, List<File>> scanForDuplicates(File folder) {
-        // Initialize a map to group files depending on their content FOR NOW
-        Map<String, List<File>> duplicateFiles = new HashMap<>();
+    public static class FileInfo {
+        public File file;
+        public long fileSize;
+        public long lastModified;
+        public String duplicateReason;
+        public String actionLabel;
 
+        public FileInfo(File file, long fileSize, long lastModified) {
+            this.file = file;
+            this.fileSize = fileSize;
+            this.lastModified = lastModified;
+            this.duplicateReason = "";
+            this.actionLabel = "";
+        }
+    }
+
+    // Scan for duplicates by reading the file's bytes (file content and file size)
+    public Map<String, List<FileInfo>> scanForDuplicates(File folder) {
+        // Initialize a map to group files depending on their content
+        Map<String, List<FileInfo>> duplicateFiles = new HashMap<>();
+
+        scanFolderRecursively(folder, duplicateFiles);
+
+        determineDuplicateReasons(duplicateFiles);
+        
+        // Return map containing all files so both the duplicate and non-duplicate files will be shown in the results screen
+        return duplicateFiles;
+    }
+
+    private void scanFolderRecursively(File folder, Map<String, List<FileInfo>> duplicateFiles) {
         // Get all files and subdirectories in the selected folder
         File[] files = folder.listFiles(); // Gets an array of all the files and subdirectories in the selected folder
         if (files != null) {
             // Iterate through each item in the folder
             for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(".txt")) { // Check if It's a file, and It's name ends with "txt"
+                if (file.isFile() && isSupportedFileType(file.getName())) {
                     try {
-                        String content = new String(Files.readAllBytes(file.toPath())); // Read file content (bytes) as a string
+                        byte[] fileBytes = Files.readAllBytes(file.toPath());
+                        long fileSize = file.length();
+                        long lastModified = file.lastModified();
 
-                        if (duplicateFiles.containsKey(content)) { // Check if this content has been seen before
-                            duplicateFiles.get(content).add(file); // Add the file to the existing array list of duplicate files (Line 18)
+                        String contentKey = fileSize + "|" + java.util.Arrays.toString(fileBytes);
+
+                        FileInfo fileInfo = new FileInfo(file, fileSize, lastModified);
+
+                        if (duplicateFiles.containsKey(contentKey)) {
+                            duplicateFiles.get(contentKey).add(fileInfo);
                         } else {
-                            List<File> duplicateFileList = new ArrayList<>(); // Create a new array list if this content hasn't been seen before
-                            duplicateFileList.add(file);
-                            duplicateFiles.put(content, duplicateFileList); // Put the file byte content in the duplicateFileList
+                            List<FileInfo> fileList = new ArrayList<>();
+                            fileList.add(fileInfo);
+                            duplicateFiles.put(contentKey, fileList);
                         }
                     } catch (Exception e) {
                         System.out.println("Error reading file: " + file.getName());
                     }
+                } else if (file.isDirectory()) {
+                    // Recursively scan subdirectories
+                    scanFolderRecursively(file, duplicateFiles);
                 }
             }
         }
+    }
 
-        // Return the map containing all files so both duplicate and non-duplicate files will be shown in the results screen
-        return duplicateFiles;
+    private boolean isSupportedFileType(String name) {
+        String lowercaseName = name.toLowerCase();
+        return lowercaseName.endsWith(".txt") || lowercaseName.endsWith(".doc") || lowercaseName.endsWith(".docx") || lowercaseName.endsWith(".gdoc");
+    }
+
+    private void determineDuplicateReasons(Map<String, List<FileInfo>> duplicateFiles) {
+        for (List<FileInfo> group: duplicateFiles.values()) {
+            if (group.size() > 1) {
+                // Mark the files that are a byte match
+                for (FileInfo fileInfo : group) {
+                    fileInfo.duplicateReason = "Byte match";
+                }
+
+                // Determine the most recently modified (KEEP THE FILE) and least recently modified (DELETE THE FILE)
+                FileInfo mostRecentFileInfo = group.get(0);
+                for (FileInfo fileInfo : group) {
+                    if (fileInfo.lastModified > mostRecentFileInfo.lastModified) {
+                        mostRecentFileInfo = fileInfo;
+                    }
+                }
+                for (FileInfo fileInfo : group) {
+                    if (fileInfo == mostRecentFileInfo) {
+                        fileInfo.actionLabel = "Keep (most recently modified)";
+                    } else {
+                        fileInfo.actionLabel = "Delete (least recently modified)";
+                    }
+                }
+            } else {
+                // Mark the file that is not a duplicate
+                for (FileInfo fileInfo : group) {
+                    fileInfo.duplicateReason = "Unique";
+                    fileInfo.actionLabel = "Keep (unique)";
+                }
+            }
+        }
     }
 }

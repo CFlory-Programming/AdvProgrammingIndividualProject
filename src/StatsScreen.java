@@ -40,8 +40,8 @@ public class StatsScreen {
         sketch.fill(0);
         sketch.text("Deleted Files: " + deletedFileCount, sketch.width / 2, 90);
         
-        double freedGB = freedStorage / 1024.0 / 1024.0 / 1024.0;
-        String freedStorageText = String.format("Freed Storage: %.2f GB", freedGB);
+        double freedKB = freedStorage / 1024.0;
+        String freedStorageText = String.format("Freed Storage: %.2f KB", freedKB);
         sketch.text(freedStorageText, sketch.width / 2, 120);
 
         goHomeButton.display();

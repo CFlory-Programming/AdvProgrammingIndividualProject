@@ -5,6 +5,8 @@ import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main extends PApplet {
 
@@ -27,7 +29,7 @@ public class Main extends PApplet {
     private ScreenState currentScreen = ScreenState.WARNING;
 
     private FileScanner fileScanner;
-    private Map<String, java.util.List<File>> duplicateFiles;
+    private Map<String, java.util.List<FileScanner.FileInfo>> duplicateFiles;
     private StringBuilder stringBuilder = new StringBuilder();
 
     private WarningScreen warningScreen;
@@ -103,6 +105,11 @@ public class Main extends PApplet {
         }
     }
 
+    private String formatDate(long timestamp) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return simpleDateFormat.format(new Date(timestamp));
+    }
+
     @Override
     public void mousePressed() {
         switch (currentScreen) {
@@ -132,20 +139,32 @@ public class Main extends PApplet {
                     // YES pressed: Get stats and show stats screen
                     int deletedCount = 0;
                     long freedStorage = 0;
-                    for (List<File> group : duplicateFiles.values()) {
+
+                    long currentTime = System.currentTimeMillis();
+                    stringBuilder.append("Deleted files: (").append(formatDate(currentTime)).append(")\n");
+                    
+                    for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
                         if (group.size() > 1) {
-                            for (File file : group) {
-                                deletedCount++;
-                                freedStorage += file.length();
-
-                                System.out.println("Deleting file: " + file.getAbsolutePath());
-
-                                stringBuilder.append("Deleted file: ").append(file).append("\n");
-
-                                if (deleteFunctionality) {
-                                    file.delete();
+                            // Find the file with the oldest modification time
+                            FileScanner.FileInfo leastRecentFile = group.get(0);
+                            for (FileScanner.FileInfo fileInfo : group) {
+                                if (fileInfo.lastModified < leastRecentFile.lastModified) {
+                                    leastRecentFile = fileInfo;
                                 }
                             }
+
+                            // Delete only the least recently modified file
+                            deletedCount++;
+                            freedStorage += leastRecentFile.fileSize;
+
+                            System.out.println("Deleting file: " + leastRecentFile.file.getAbsolutePath());
+
+                            stringBuilder.append(leastRecentFile.file).append("\n").append("\n");
+
+                            if (deleteFunctionality) {
+                                leastRecentFile.file.delete();
+                            }
+
                             // Write to the export log
                             try {
                                 Files.writeString(filePath, stringBuilder.toString());
@@ -170,6 +189,19 @@ public class Main extends PApplet {
                 }
                 break;
         }
+    }
+
+    @Override
+    public void mouseWheel(processing.event.MouseEvent event) {
+        float direction = event.getCount();
+        switch (currentScreen) {
+            case SCANNING:
+                scanningScreen.handleMouseWheel(direction);
+                break;
+            case RESULTS:
+                resultsScreen.handleMouseWheel(direction);
+                break;
+        }   
     }
 
     private void openFileBrowser() {

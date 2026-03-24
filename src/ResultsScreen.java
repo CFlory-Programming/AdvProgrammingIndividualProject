@@ -2,6 +2,8 @@ import processing.core.PApplet;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ResultsScreen {
     private PApplet sketch;
@@ -10,7 +12,10 @@ public class ResultsScreen {
     private Button confirmNoButton;
     private boolean awaitingDeleteConfirmation;
 
-    private Map<String, List<File>> duplicateFiles;
+    private Map<String, List<FileScanner.FileInfo>> duplicateFiles;
+    private float scrollOffset = 0;
+    private float scrollSpeed = 15;
+    private int iconSize = 30;
 
     public ResultsScreen(PApplet sketch, Button deleteButton) {
         this.sketch = sketch;
@@ -54,8 +59,19 @@ public class ResultsScreen {
         return 0;
     }
 
-    public void setDuplicateFiles(Map<String, List<File>> duplicateFiles) {
+    public void setDuplicateFiles(Map<String, List<FileScanner.FileInfo>> duplicateFiles) {
         this.duplicateFiles = duplicateFiles;
+        this.scrollOffset = 0; // Reset scroll position when new files are loaded (top of the page)
+    }
+
+    public void handleMouseWheel(float direction) {
+        // Positive direction means scrolling down, negative means scrolling up
+        scrollOffset += direction * scrollSpeed;
+    }
+
+    private String formatDate(long timestamp) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return simpleDateFormat.format(new Date(timestamp));
     }
 
     public void display() {
@@ -76,83 +92,119 @@ public class ResultsScreen {
         sketch.text(displayMessage, sideMargin, 10, textBoxWidth, textBoxHeight);
 
         // Show the results if duplicate files
-        int yPosition = 40;
         if (duplicateFiles != null) {
             sketch.fill(0, 0, 0);
             sketch.textSize(11);
             sketch.textAlign(PApplet.CENTER, PApplet.TOP);
 
-            int iconSize = 30;
-            int spacing = 10;
+            // Define scrollable area
+            int scrollAreaTop = 40;
+            int scrollAreaBottom = sketch.height - 140;
+            int scrollAreaHeight = scrollAreaBottom - scrollAreaTop;
 
-            // Display duplicate files
-            sketch.text("Duplicate Files:", sideMargin, yPosition, textBoxWidth, textBoxHeight);
+            // Clip the drawing to the scrollable area
+            sketch.clip(sideMargin, scrollAreaTop, textBoxWidth, scrollAreaHeight);
+
+            float yPosition = scrollAreaTop - scrollOffset;
+
+            // Display the duplicates section
+            sketch.fill(0, 0, 0);
+            sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+            sketch.textSize(11);
+            sketch.text("Duplicate Files:", sideMargin, yPosition);
+            yPosition += 22;
 
             // Display duplicates in groups
             int groupNumber = 1;
-            for (List<File> group: duplicateFiles.values()) {
+            float totalContentHeight = 0f;
+            for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
                 if (group.size() > 1) {
+                    sketch.fill(0, 0, 0);
+                    sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+                    sketch.textSize(10);
                     sketch.text("Group " + groupNumber + ":", sideMargin, yPosition);
-                    yPosition += 20;
+                    yPosition += 22;
+                    totalContentHeight += 22;
 
-                    int xPosition = sideMargin;
-                    for (File file: group) {
+                    for (FileScanner.FileInfo fileInfo : group) {
                         // Draw rounded square file icon
                         sketch.fill(240, 240, 240);
                         sketch.stroke(200);
                         sketch.strokeWeight(1);
-                        sketch.rect(xPosition, yPosition, iconSize, iconSize, 5);
+                        sketch.rect(sideMargin, yPosition, iconSize, iconSize, 5);
 
                         processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
                         if (icon != null) {
-                            sketch.image(icon, xPosition, yPosition, iconSize, iconSize);
+                            sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
                         }
 
                         // Display file name underneath the icon
                         sketch.noStroke();
-                        sketch.textAlign(PApplet.CENTER, PApplet.TOP);
-                        sketch.textSize(9);
+                        sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+                        sketch.textSize(10);
                         sketch.fill(0, 0, 0);
-                        sketch.text(file.getName(), xPosition + iconSize / 2, yPosition + iconSize + 2);
+                        sketch.text(fileInfo.file.getName(), sideMargin + iconSize + 10, yPosition + 2);
 
-                        xPosition += iconSize + spacing + 5; // Move to the right for the next file icon
+                        sketch.textSize(8);
+                        sketch.fill(100, 100, 100);
+                        sketch.text("Reason: " + fileInfo.duplicateReason, sideMargin + iconSize + 10, yPosition + 16);
+                        sketch.text("Modified: " + formatDate(fileInfo.lastModified), sideMargin + iconSize + 10, yPosition + 30);
+                        sketch.text("Action: " + fileInfo.actionLabel, sideMargin + iconSize + 10, yPosition + 44);
+
+                        yPosition += iconSize + 26; // Move down for the next file in the group
+                        totalContentHeight += iconSize + 26;
                     }
 
-                    yPosition += iconSize + spacing + 25; // Move down for the next group
+                    yPosition += 10; // Extra space between groups
+                    totalContentHeight += 10;
                     groupNumber++;
                 }
             }
 
-            // Display non-duplicates
-            sketch.text("Non-Duplicate Files:", sideMargin, yPosition, textBoxWidth, textBoxHeight);
-            yPosition += 20;
+        // Display the non-duplicates section
+        sketch.fill(0, 0, 0);
+        sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+        sketch.textSize(11);
+        sketch.text("Non-Duplicate Files:", sideMargin, yPosition);
+        yPosition += 22;
 
-            int xPosition = sideMargin;
-            for (List<File> group: duplicateFiles.values()) {
-                if (group.size() == 1) {
-                    for (File file: group) {
-                        // Draw rounded square file icon
-                        sketch.fill(240, 240, 240);
-                        sketch.stroke(200);
-                        sketch.strokeWeight(1);
-                        sketch.rect(xPosition, yPosition, iconSize, iconSize, 5);
+        for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
+            if (group.size() == 1) {
+                FileScanner.FileInfo fileInfo = group.get(0);
 
-                        processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
-                        if (icon != null) {
-                            sketch.image(icon, xPosition, yPosition, iconSize, iconSize);
-                        }
+                    // Draw rounded square file icon
+                    sketch.fill(240, 240, 240);
+                    sketch.stroke(200);
+                    sketch.strokeWeight(1);
+                    sketch.rect(sideMargin, yPosition, iconSize, iconSize, 5);
 
-                        // Display file name underneath the icon
-                        sketch.noStroke();
-                        sketch.textAlign(PApplet.CENTER, PApplet.TOP);
-                        sketch.textSize(9);
-                        sketch.fill(0, 0, 0);
-                        sketch.text(file.getName(), xPosition + iconSize / 2, yPosition + iconSize + 2);
-
-                        xPosition += iconSize + spacing + 5; // Move to the right for the next file icon
+                    processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
+                    if (icon != null) {
+                        sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
                     }
+
+                    // Display file name underneath the icon
+                    sketch.noStroke();
+                    sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+                    sketch.textSize(10);
+                    sketch.fill(0, 0, 0);
+                    sketch.text(fileInfo.file.getName(), sideMargin + iconSize + 10, yPosition + 2);
+
+                    sketch.textSize(8);
+                    sketch.fill(100, 100, 100);
+                    sketch.text("Modified: " + formatDate(fileInfo.lastModified), sideMargin + iconSize + 10, yPosition + 16);
+                    sketch.text("Action: " + fileInfo.actionLabel, sideMargin + iconSize + 10, yPosition + 30);
+
+                    yPosition = yPosition + iconSize + 26; // Move down for the next file
+                    totalContentHeight += iconSize + 26;
                 }
             }
+
+            // Disable clipping after drawing the scrollable content
+            sketch.noClip();
+
+            // Constrain scroll offset based on real content height
+            scrollOffset = PApplet.constrain(scrollOffset, 0, Math.max(0f, totalContentHeight - scrollAreaHeight + 40f));
         }
 
         if (awaitingDeleteConfirmation) {
@@ -164,6 +216,9 @@ public class ResultsScreen {
             sketch.textSize(18);
             sketch.textAlign(PApplet.CENTER, PApplet.CENTER);
             sketch.text("Are you sure you want to delete the duplicate files?", sketch.width / 2, sketch.height / 2 - 40);
+            sketch.textSize(14);
+            sketch.fill(200, 200, 200);
+            sketch.text("(The least recently modified files in each duplicate group will be deleted)", sketch.width / 2, sketch.height / 2 - 10);
 
             confirmYesButton.display();
             confirmNoButton.display();

@@ -16,8 +16,8 @@
 3. Open with admin privileges
 
 ## Feature List
-- File hash detection
 - File byte (content) detection
+- File size detection
 - File metadata detection (last updated)
 - Supports text documents
 - Exportable Logs (.txt report of what was deleted)

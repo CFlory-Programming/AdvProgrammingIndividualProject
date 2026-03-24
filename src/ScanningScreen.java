@@ -8,7 +8,9 @@ public class ScanningScreen {
     private Button seeResultsButton;
     private ProgressBar progressBar;
     private String selectedFolderPath;
-    private Map<String, List<File>> duplicateFiles;
+    private Map<String, List<FileScanner.FileInfo>> duplicateFiles;
+    private float scrollOffset = 0;
+    private float scrollSpeed = 15;
 
     public ScanningScreen(PApplet sketch, Button seeResultsButton, ProgressBar progressBar) {
         this.sketch = sketch;
@@ -23,8 +25,14 @@ public class ScanningScreen {
         this.selectedFolderPath = path;
     }
 
-    public void setDuplicateFiles(Map<String, List<File>> duplicateFiles) {
+    public void setDuplicateFiles(Map<String, List<FileScanner.FileInfo>> duplicateFiles) {
         this.duplicateFiles = duplicateFiles;
+        this.scrollOffset = 0; // Reset scroll position when new files are loaded
+    }
+
+    public void handleMouseWheel(float direction) {
+        // direction is positive for scrolling up and negative for scrolling down
+        scrollOffset += direction * scrollSpeed;
     }
 
     public void display() {
@@ -55,12 +63,31 @@ public class ScanningScreen {
             sketch.text("Scanning Files:", sideMargin, listGap);
             listGap += 15;
 
-             for (List<File> group: duplicateFiles.values()) {
-                for (File file: group) {
-                    sketch.text("  - " + file.getName(), sideMargin, listGap);
-                    listGap += 15;
+            // Define scrollable area
+            int scrollAreaTop = listGap;
+            int scrollAreaBottom = sketch.height - 180;
+            int scrollAreaHeight = scrollAreaBottom - scrollAreaTop;
+
+            // Clip the drawing to the scrollable area
+            sketch.clip(sideMargin, scrollAreaTop, textBoxWidth, scrollAreaHeight);
+
+            float currentY = scrollAreaTop - scrollOffset;
+            float totalContentHeight = 0;
+
+             for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
+                for (FileScanner.FileInfo fileInfo : group) {
+                    sketch.text("  - " + fileInfo.file.getName(), sideMargin, currentY);
+
+                    currentY += 18f;
+                    totalContentHeight += 18f;
                 }
             }
+
+            // Disable clipping after drawing the scrollable content
+            sketch.noClip();
+
+            // Constrain scroll offset based on real content height
+            scrollOffset = PApplet.constrain(scrollOffset, 0, Math.max(0f, totalContentHeight - scrollAreaHeight + 10f));
         }
 
         // Display scanning status text
