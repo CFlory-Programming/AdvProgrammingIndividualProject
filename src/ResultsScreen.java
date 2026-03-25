@@ -132,7 +132,7 @@ public class ResultsScreen {
                         sketch.strokeWeight(1);
                         sketch.rect(sideMargin, yPosition, iconSize, iconSize, 5);
 
-                        processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
+                        processing.core.PImage icon = sketch.loadImage("../images/IconImage.png");
                         if (icon != null) {
                             sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
                         }
@@ -177,7 +177,7 @@ public class ResultsScreen {
                     sketch.strokeWeight(1);
                     sketch.rect(sideMargin, yPosition, iconSize, iconSize, 5);
 
-                    processing.core.PImage icon = sketch.loadImage("images/IconImage.png");
+                    processing.core.PImage icon = sketch.loadImage("../images/IconImage.png");
                     if (icon != null) {
                         sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
                     }

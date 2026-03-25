@@ -70,7 +70,7 @@ public class MainScreen {
         int logoSize = 50;
 
         // Display the CarbonCopyLogo.png image
-        processing.core.PImage logo = sketch.loadImage("images/CarbonCopyLogo.png");
+        processing.core.PImage logo = sketch.loadImage("../images/CarbonCopyLogo.png");
         if (logo != null) {
             sketch.image(logo, logoX - logoSize / 2, logoY - logoSize / 2, logoSize, logoSize);
         }
