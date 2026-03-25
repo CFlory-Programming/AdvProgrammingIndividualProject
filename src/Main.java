@@ -16,7 +16,7 @@ public class Main extends PApplet {
 
     // Export log
     private Path folderPath = Path.of("exports");
-    private Path filePath = folderPath.resolve("deleted_files.txt");
+    private Path filePath = folderPath.resolve("");
 
     private Button folderSelectButton;
     private Button seeResultsButton;
@@ -140,9 +140,20 @@ public class Main extends PApplet {
                     int deletedCount = 0;
                     long freedStorage = 0;
 
+
+                    // Create export log
                     long currentTime = System.currentTimeMillis();
-                    stringBuilder.append("Deleted files: (").append(formatDate(currentTime)).append(")\n");
+                    String fileName = "deleted_files_" + formatDate(currentTime) + ".txt";
+                    filePath = folderPath.resolve(fileName);
+                    // Create exports directory if it doesn't exist
+                    try {
+                        Files.createDirectories(folderPath);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     
+                    stringBuilder.append("Deleted files: (").append(formatDate(currentTime)).append(")\n");
+
                     for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
                         if (group.size() > 1) {
                             // Find the file with the oldest modification time
@@ -159,19 +170,19 @@ public class Main extends PApplet {
 
                             System.out.println("Deleting file: " + leastRecentFile.file.getAbsolutePath());
 
-                            stringBuilder.append(leastRecentFile.file).append("\n").append("\n");
+                            stringBuilder.append(leastRecentFile.file).append("\n");
 
                             if (deleteFunctionality) {
                                 leastRecentFile.file.delete();
                             }
-
-                            // Write to the export log
-                            try {
-                                Files.writeString(filePath, stringBuilder.toString());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
                         }
+                    }
+
+                    // Write to the export log
+                    try {
+                        Files.writeString(filePath, stringBuilder.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
                     statsScreen.setStats(deletedCount, freedStorage);
