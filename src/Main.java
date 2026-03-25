@@ -201,6 +201,8 @@ public class Main extends PApplet {
             case RESULTS:
                 resultsScreen.handleMouseWheel(direction);
                 break;
+            default:
+                break;
         }   
     }
 
