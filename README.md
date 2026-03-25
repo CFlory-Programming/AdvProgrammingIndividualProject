@@ -19,7 +19,7 @@
 - File byte (content) detection
 - File size detection
 - File metadata detection (last updated)
-- Supports text documents
+- Supports any text documents ```(.txt, .docx, .gdoc)```
 - Exportable Logs (.txt report of what was deleted)
 - Warning prompts with an overview before deleting any files
 
