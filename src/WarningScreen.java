@@ -19,7 +19,6 @@ public class WarningScreen {
     public void display() {
         sketch.background(255);
 
-        sketch.fill(255, 204, 0); // Yellow text
         sketch.textAlign(PApplet.CENTER, PApplet.CENTER);
         sketch.textSize(24);
 
@@ -30,6 +29,12 @@ public class WarningScreen {
 
         String warningMessage = "WARNING: USE THIS PROGRAM WITH CAUTION AS IT HAS THE ABILITY TO DELETE ANY FILE ON YOUR COMPUTER!";
 
+        // Draw black outline first
+        sketch.fill(0, 0, 0);
+        sketch.text(warningMessage, sideMargin, topMargin, textBoxWidth, textboxHeight);
+
+        // Draw red text on top
+        sketch.fill(255, 0, 0);
         sketch.text(warningMessage, sideMargin, topMargin, textBoxWidth, textboxHeight);
 
         agreeButton.display();

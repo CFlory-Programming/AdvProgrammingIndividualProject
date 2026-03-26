@@ -29,7 +29,7 @@ public class Main extends PApplet {
     private ScreenState currentScreen = ScreenState.WARNING;
 
     private FileScanner fileScanner;
-    private Map<String, java.util.List<FileScanner.FileInfo>> duplicateFiles;
+    private Map<String, java.util.List<FileInfo>> duplicateFiles;
     private StringBuilder stringBuilder = new StringBuilder();
 
     private WarningScreen warningScreen;
@@ -154,11 +154,11 @@ public class Main extends PApplet {
                     
                     stringBuilder.append("Deleted files: (").append(formatDate(currentTime)).append(")\n");
 
-                    for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
+                    for (List<FileInfo> group : duplicateFiles.values()) {
                         if (group.size() > 1) {
                             // Find the file with the oldest modification time
-                            FileScanner.FileInfo leastRecentFile = group.get(0);
-                            for (FileScanner.FileInfo fileInfo : group) {
+                            FileInfo leastRecentFile = group.get(0);
+                            for (FileInfo fileInfo : group) {
                                 if (fileInfo.lastModified < leastRecentFile.lastModified) {
                                     leastRecentFile = fileInfo;
                                 }

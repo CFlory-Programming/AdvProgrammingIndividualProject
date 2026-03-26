@@ -9,22 +9,6 @@ public class FileScanner {
     public String rootPath;
     public boolean isRecursive;
 
-    public static class FileInfo {
-        public File file;
-        public long fileSize;
-        public long lastModified;
-        public String duplicateReason;
-        public String actionLabel;
-
-        public FileInfo(File file, long fileSize, long lastModified) {
-            this.file = file;
-            this.fileSize = fileSize;
-            this.lastModified = lastModified;
-            this.duplicateReason = "";
-            this.actionLabel = "";
-        }
-    }
-
     // Scan for duplicates by reading the file's bytes (file content and file size)
     public Map<String, List<FileInfo>> scanForDuplicates(File folder) {
         // Initialize a map to group files depending on their content

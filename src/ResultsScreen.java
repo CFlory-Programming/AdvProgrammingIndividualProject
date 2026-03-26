@@ -11,10 +11,18 @@ public class ResultsScreen {
     private Button confirmNoButton;
     private boolean awaitingDeleteConfirmation;
 
-    private Map<String, List<FileScanner.FileInfo>> duplicateFiles;
+    private Map<String, List<FileInfo>> duplicateFiles;
     private float scrollOffset = 0;
     private float scrollSpeed = 15;
     private int iconSize = 30;
+    private float scrollSize = 35;
+
+    // Visual settings
+    private int textColor = 0;
+    private int titleColor = 50;
+    private int subtextColor = 100;
+    private float sectionSpacing = 10f;
+    private float groupSpacing = 10f;
 
     public ResultsScreen(PApplet sketch, Button deleteButton) {
         this.sketch = sketch;
@@ -58,14 +66,140 @@ public class ResultsScreen {
         return 0;
     }
 
-    public void setDuplicateFiles(Map<String, List<FileScanner.FileInfo>> duplicateFiles) {
+    public void setDuplicateFiles(Map<String, List<FileInfo>> duplicateFiles) {
         this.duplicateFiles = duplicateFiles;
         this.scrollOffset = 0; // Reset scroll position when new files are loaded (top of the page)
     }
 
     public void handleMouseWheel(float direction) {
-        // Positive direction means scrolling down, negative means scrolling up
+        if (duplicateFiles == null) {
+            return;
+        }
+
+        int scrollAreaTop = 40;
+        int scrollAreaBottom = sketch.height - 140;
+        float scrollAreaHeight = scrollAreaBottom - scrollAreaTop;
+
+        float totalContentHeight = calculateTotalContentHeight();
+        float maxOffset = PApplet.max(0f, totalContentHeight - scrollAreaHeight);
+
+        // TOP guard: When exactly at top, block UP scrolling
+        if (direction < 0 && scrollOffset <= 0f) {
+            return;
+        }
+
+        // BOTTOM guard: When exactly at bottom, block DOWN scrolling
+        if (direction > 0 && scrollOffset >= maxOffset) {
+            return;
+        }
+
         scrollOffset += direction * scrollSpeed;
+        scrollOffset = PApplet.constrain(scrollOffset, 0f, maxOffset);
+    }
+
+    private float calculateTotalContentHeight() {
+        if (duplicateFiles == null) {
+            return 0f;
+        }
+
+        float totalHeight = 0f;
+
+        // Duplicate section header
+        totalHeight += scrollSize;
+
+        for (List<FileInfo> group : duplicateFiles.values()) {
+            if (group.size() > 1) {
+                totalHeight += scrollSize; // Group header
+                totalHeight += group.size() * (iconSize + 26);
+                totalHeight += groupSpacing;
+            }
+        }
+
+        // Thick divider before the non-duplicate section
+        totalHeight += sectionSpacing;
+
+        // Non-duplicate section header
+        totalHeight += scrollSize;
+
+        for (List<FileInfo> group : duplicateFiles.values()) {
+            if (group.size() == 1) {
+                totalHeight += iconSize + 26;
+            }
+        }
+        return totalHeight;
+    }
+
+    private int getDuplicateGroupCount() {
+        if (duplicateFiles == null) {
+            return 0;
+        }
+        int count = 0;
+        for (List<FileInfo> group : duplicateFiles.values()) {
+            if (group.size() > 1) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int getUniqueFileCount() {
+        if (duplicateFiles == null) {
+            return 0;
+        }
+        int count = 0;
+        for (List<FileInfo> group : duplicateFiles.values()) {
+            if (group.size() == 1) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private float drawWrappedText(String text, float x, float y, float maxWidth, float lineHeight) {
+        String[] words = text.split(" ");
+        String line = "";
+
+        for (String word : words) {
+            if (sketch.textWidth(word) > maxWidth && word.length() > 1) {
+                if (!line.isEmpty()) {
+                    sketch.text(line, x, y);
+                    y+= lineHeight;
+                    line = "";
+                }
+                String remaining = word;
+                while (!remaining.isEmpty()) {
+                    int length = 1;
+                    while (length <= remaining.length() && sketch.textWidth(remaining.substring(0, length)) <= maxWidth) {
+                        length++;
+                    }
+                    length = Math.max(1, length - 1);
+                    sketch.text(remaining.substring(0, length), x, y);
+                    y += lineHeight;
+                    remaining = remaining.substring(length);
+                }
+                continue;
+            }
+
+            String testLine = line.isEmpty() ? word : line + " " + word;
+            float testLineWidth = sketch.textWidth(testLine);
+
+            if (testLineWidth <= maxWidth) {
+                line = testLine;
+            } else {
+                if (!line.isEmpty()) {
+                    sketch.text(line, x, y);
+                    y += lineHeight;
+                }
+                line = word;
+            }
+        }
+
+        if (!line.isEmpty()) {
+            sketch.text(line, x, y);
+            y += lineHeight;
+        }
+
+        return y;
     }
 
     private String formatDate(long timestamp) {
@@ -90,6 +224,14 @@ public class ResultsScreen {
         String displayMessage = "Results";
         sketch.text(displayMessage, sideMargin, 10, textBoxWidth, textBoxHeight);
 
+        // Display summary right after Results title
+        int duplicateGroupCount = getDuplicateGroupCount();
+        int uniqueFileCount = getUniqueFileCount();
+        sketch.fill(textColor);
+        sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+        sketch.textSize(10);
+        sketch.text("Showing " + duplicateGroupCount + " duplicate groups and " + uniqueFileCount + " unique files", sideMargin, 30);
+
         // Show the results if duplicate files
         if (duplicateFiles != null) {
             sketch.fill(0, 0, 0);
@@ -97,7 +239,7 @@ public class ResultsScreen {
             sketch.textAlign(PApplet.CENTER, PApplet.TOP);
 
             // Define scrollable area
-            int scrollAreaTop = 40;
+            int scrollAreaTop = 60;
             int scrollAreaBottom = sketch.height - 140;
             int scrollAreaHeight = scrollAreaBottom - scrollAreaTop;
 
@@ -107,69 +249,100 @@ public class ResultsScreen {
             float yPosition = scrollAreaTop - scrollOffset;
 
             // Display the duplicates section
-            sketch.fill(0, 0, 0);
+            sketch.fill(titleColor);
             sketch.textAlign(PApplet.LEFT, PApplet.TOP);
             sketch.textSize(11);
             sketch.text("Duplicate Files:", sideMargin, yPosition);
             yPosition += 22;
 
-            // Display duplicates in groups
-            int groupNumber = 1;
-            float totalContentHeight = 0f;
-            for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
+            boolean hasDuplicateGroups = duplicateGroupCount > 0;
+            for (List<FileInfo> group : duplicateFiles.values()) {
                 if (group.size() > 1) {
-                    sketch.fill(0, 0, 0);
-                    sketch.textAlign(PApplet.LEFT, PApplet.TOP);
-                    sketch.textSize(10);
-                    sketch.text("Group " + groupNumber + ":", sideMargin, yPosition);
-                    yPosition += 22;
-                    totalContentHeight += 22;
-
-                    for (FileScanner.FileInfo fileInfo : group) {
-                        // Draw rounded square file icon
-                        sketch.fill(240, 240, 240);
-                        sketch.stroke(200);
-                        sketch.strokeWeight(1);
-                        sketch.rect(sideMargin, yPosition, iconSize, iconSize, 5);
-
-                        processing.core.PImage icon = sketch.loadImage("../images/IconImage.png");
-                        if (icon != null) {
-                            sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
-                        }
-
-                        // Display file name underneath the icon
-                        sketch.noStroke();
-                        sketch.textAlign(PApplet.LEFT, PApplet.TOP);
-                        sketch.textSize(10);
-                        sketch.fill(0, 0, 0);
-                        sketch.text(fileInfo.file.getName(), sideMargin + iconSize + 10, yPosition + 2);
-
-                        sketch.textSize(8);
-                        sketch.fill(100, 100, 100);
-                        sketch.text("Reason: " + fileInfo.duplicateReason, sideMargin + iconSize + 10, yPosition + 16);
-                        sketch.text("Modified: " + formatDate(fileInfo.lastModified), sideMargin + iconSize + 10, yPosition + 30);
-                        sketch.text("Action: " + fileInfo.actionLabel, sideMargin + iconSize + 10, yPosition + 44);
-
-                        yPosition += iconSize + 26; // Move down for the next file in the group
-                        totalContentHeight += iconSize + 26;
-                    }
-
-                    yPosition += 10; // Extra space between groups
-                    totalContentHeight += 10;
-                    groupNumber++;
+                    hasDuplicateGroups = true;
+                    break;
                 }
             }
 
-        // Display the non-duplicates section
-        sketch.fill(0, 0, 0);
-        sketch.textAlign(PApplet.LEFT, PApplet.TOP);
-        sketch.textSize(11);
-        sketch.text("Non-Duplicate Files:", sideMargin, yPosition);
-        yPosition += 22;
+            int groupNumber = 1;
 
-        for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
-            if (group.size() == 1) {
-                FileScanner.FileInfo fileInfo = group.get(0);
+            if (!hasDuplicateGroups) {
+                sketch.textAlign(PApplet.CENTER, PApplet.TOP);
+                sketch.textSize(12);
+                sketch.text("No duplicate files found in the selected folder.", sketch.width / 2, yPosition);
+                yPosition += 30;
+                sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+                sketch.textSize(11);
+            } else {
+                for (List<FileInfo> group : duplicateFiles.values()) {
+                    if (group.size() > 1) {
+                        sketch.fill(0, 0, 0);
+                        sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+                        sketch.textSize(10);
+                        sketch.text("Group " + groupNumber + ":", sideMargin, yPosition);
+                        yPosition += 22;
+
+                        for (FileInfo fileInfo : group) {
+                            // Draw rounded square file icon
+                            sketch.fill(240, 240, 240);
+                            sketch.stroke(200);
+                            sketch.strokeWeight(1);
+                            sketch.rect(sideMargin, yPosition, iconSize, iconSize, 5);
+
+                            processing.core.PImage icon = sketch.loadImage("../images/IconImage.png");
+                            if (icon != null) {
+                                sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
+                            }
+
+                            // Display file name and metadata next to the icon
+                            sketch.noStroke();
+                            sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+                            sketch.textSize(10);
+                            sketch.fill(textColor);
+                            float fileNameStartX = sideMargin + iconSize + 10;
+                            float fileNameMaxWidth = textBoxWidth - (fileNameStartX - sideMargin);
+                            float wrappedTextY = drawWrappedText(fileInfo.file.getName(), fileNameStartX, yPosition + 2, fileNameMaxWidth, 12);
+
+                            sketch.textSize(8);
+                            sketch.fill(subtextColor);
+                            sketch.text("Reason: " + fileInfo.duplicateReason, fileNameStartX, wrappedTextY);
+                            sketch.text("Modified: " + formatDate(fileInfo.lastModified), fileNameStartX, wrappedTextY + 14);
+                            sketch.text("Action: " + fileInfo.actionLabel, fileNameStartX, wrappedTextY + 28);
+
+                            float usedHeight = (wrappedTextY - yPosition) + 28; // Calculate the height used by the wrapped text
+                            float blankHeight = Math.max(iconSize + 26, usedHeight + 15); // Ensure enough space for the icon and metadata
+                            yPosition += blankHeight; // Move down for the next file
+                            continue;
+                        }
+
+                        // Visual seperator line between duplicate groups
+                        sketch.stroke(180);
+                        sketch.line(sideMargin, yPosition, sideMargin + textBoxWidth, yPosition);
+                        sketch.noStroke();
+
+                        yPosition += 10; // Extra space between groups
+                        groupNumber++;
+                    }
+                }
+            }
+
+            // Thick divider before non-duplicate section
+            sketch.stroke(180);
+            sketch.strokeWeight(3);
+            sketch.line(sideMargin, yPosition, sideMargin + textBoxWidth, yPosition);
+            sketch.strokeWeight(1);
+            sketch.noStroke();
+            yPosition += sectionSpacing; // Space after the divider
+
+            // Display the non-duplicates section
+            sketch.fill(0, 0, 0);
+            sketch.textAlign(PApplet.LEFT, PApplet.TOP);
+            sketch.textSize(11);
+            sketch.text("Non-Duplicate Files:", sideMargin, yPosition);
+            yPosition += 22;
+
+            for (List<FileInfo> group : duplicateFiles.values()) {
+                if (group.size() == 1) {
+                    FileInfo fileInfo = group.get(0);
 
                     // Draw rounded square file icon
                     sketch.fill(240, 240, 240);
@@ -182,20 +355,24 @@ public class ResultsScreen {
                         sketch.image(icon, sideMargin, yPosition, iconSize, iconSize);
                     }
 
-                    // Display file name underneath the icon
+                    // Display file name and metadata underneath the icon with wrap check
                     sketch.noStroke();
                     sketch.textAlign(PApplet.LEFT, PApplet.TOP);
                     sketch.textSize(10);
-                    sketch.fill(0, 0, 0);
-                    sketch.text(fileInfo.file.getName(), sideMargin + iconSize + 10, yPosition + 2);
+                    sketch.fill(textColor);
+                    float fileNameStartX = sideMargin + iconSize + 10;
+                    float fileNameMaxWidth = textBoxWidth - (fileNameStartX - sideMargin);
+                    float wrappedTextY = drawWrappedText(fileInfo.file.getName(), fileNameStartX, yPosition + 2, fileNameMaxWidth, 12);
 
                     sketch.textSize(8);
-                    sketch.fill(100, 100, 100);
-                    sketch.text("Modified: " + formatDate(fileInfo.lastModified), sideMargin + iconSize + 10, yPosition + 16);
-                    sketch.text("Action: " + fileInfo.actionLabel, sideMargin + iconSize + 10, yPosition + 30);
+                    sketch.fill(subtextColor);
+                    sketch.text("Modified: " + formatDate(fileInfo.lastModified), fileNameStartX, wrappedTextY);
+                    sketch.text("Action: " + fileInfo.actionLabel, fileNameStartX, wrappedTextY + 14);
 
-                    yPosition = yPosition + iconSize + 26; // Move down for the next file
-                    totalContentHeight += iconSize + 26;
+                    float usedHeight = (wrappedTextY - yPosition) + 14; // Calculate the height used by the wrapped text
+                    float usedEntryHeight = Math.max(iconSize + 26, usedHeight + 8); // Ensure enough space for the icon and metadata
+
+                    yPosition += usedEntryHeight; // Move down for the next file
                 }
             }
 
@@ -203,7 +380,8 @@ public class ResultsScreen {
             sketch.noClip();
 
             // Constrain scroll offset based on real content height
-            scrollOffset = PApplet.constrain(scrollOffset, 0, Math.max(0f, totalContentHeight - scrollAreaHeight + 40f));
+            float expectedContentHeight = calculateTotalContentHeight();
+            scrollOffset = PApplet.constrain(scrollOffset, 0f, PApplet.max(0f, expectedContentHeight - scrollAreaHeight));
         }
 
         if (awaitingDeleteConfirmation) {

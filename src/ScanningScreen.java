@@ -7,9 +7,11 @@ public class ScanningScreen {
     private Button seeResultsButton;
     private ProgressBar progressBar;
     private String selectedFolderPath;
-    private Map<String, List<FileScanner.FileInfo>> duplicateFiles;
+    private Map<String, List<FileInfo>> duplicateFiles;
     private float scrollOffset = 0;
     private float scrollSpeed = 15;
+    private float lineHeight = 18f;
+    private float entryHeight = 22f;
 
     public ScanningScreen(PApplet sketch, Button seeResultsButton, ProgressBar progressBar) {
         this.sketch = sketch;
@@ -24,14 +26,142 @@ public class ScanningScreen {
         this.selectedFolderPath = path;
     }
 
-    public void setDuplicateFiles(Map<String, List<FileScanner.FileInfo>> duplicateFiles) {
+    public void setDuplicateFiles(Map<String, List<FileInfo>> duplicateFiles) {
         this.duplicateFiles = duplicateFiles;
         this.scrollOffset = 0; // Reset scroll position when new files are loaded
     }
 
+    private float calculateTotalContentHeight() {
+        if (duplicateFiles == null) {
+            return 0f;
+        }
+
+        float totalContentHeight = 0f;
+        float fileNameMaxWidth = sketch.width - 110;
+
+        for (List<FileInfo> group : duplicateFiles.values()) {
+            for (FileInfo fileInfo : group) {
+                float estimatedHeight = estimateWrappedTextHeight(fileInfo.file.getName(), fileNameMaxWidth, lineHeight);
+                totalContentHeight += Math.max(entryHeight, estimatedHeight);
+            }
+        }
+        return totalContentHeight;
+    }
+
     public void handleMouseWheel(float direction) {
-        // direction is positive for scrolling up and negative for scrolling down
+        if (duplicateFiles == null) {
+            return;
+        }
+
+        int listGap = 120;
+        int scrollAreaTop = listGap + 15;
+        int scrollAreaBottom = sketch.height - 180;
+        float scrollAreaHeight = scrollAreaBottom - scrollAreaTop;
+
+        float totalContentHeight = calculateTotalContentHeight();
+        float maxOffset = PApplet.max(0f, totalContentHeight - scrollAreaHeight + 10f);
+
+        // TOP guard: When exactly at top, block UP scrolling
+        if (direction < 0 && scrollOffset <= 0f) {
+            return;
+        }
+
+        // BOTTOM guard: When exactly at bottom, block DOWN scrolling
+        if (direction > 0 && scrollOffset >= maxOffset) {
+            return;
+        }
+
         scrollOffset += direction * scrollSpeed;
+        scrollOffset = PApplet.constrain(scrollOffset, 0f, maxOffset);
+    }
+
+    private float drawWrappedText(String text, float x, float y, float maxWidth, float lineHeight) {
+        String[] words = text.split(" ");
+        String line = "";
+
+        for (String word : words) {
+            if (sketch.textWidth(word) > maxWidth && word.length() > 1) {
+                if (!line.isEmpty()) {
+                    sketch.text(line, x, y);
+                    y+= lineHeight;
+                    line = "";
+                }
+                String remaining = word;
+                while (!remaining.isEmpty()) {
+                    int length = 1;
+                    while (length <= remaining.length() && sketch.textWidth(remaining.substring(0, length)) <= maxWidth) {
+                        length++;
+                    }
+                    length = Math.max(1, length - 1);
+                    sketch.text(remaining.substring(0, length), x, y);
+                    y += lineHeight;
+                    remaining = remaining.substring(length);
+                }
+                continue;
+            }
+
+            String testLine = line.isEmpty() ? word : line + " " + word;
+            float testLineWidth = sketch.textWidth(testLine);
+
+            if (testLineWidth <= maxWidth) {
+                line = testLine;
+            } else {
+                if (!line.isEmpty()) {
+                    sketch.text(line, x, y);
+                    y += lineHeight;
+                }
+                line = word;
+            }
+        }
+
+        if (!line.isEmpty()) {
+            sketch.text(line, x, y);
+            y += lineHeight;
+        }
+
+        return y;
+    }
+
+    private float estimateWrappedTextHeight(String text, float maxWidth, float lineHeight) {
+        if (text == null || text.isEmpty()) {
+            return lineHeight;
+        }
+
+        String[] words = text.split(" ");
+        String line = "";
+        float height = 0f;
+
+        for (String word : words) {
+            if (sketch.textWidth(word) > maxWidth && word.length() > 1) {
+                // Count how many chunks the long word needs
+                String remaining = word;
+                while (!remaining.isEmpty()) {
+                    int length = 1;
+                    while (length <= remaining.length() && sketch.textWidth(remaining.substring(0, length)) <= maxWidth) {
+                        length++;
+                    }
+                    length = Math.max(1, length - 1);
+                    height += lineHeight;
+                    remaining = remaining.substring(length);
+                }
+                line = "";
+                continue;
+            }
+
+            String testLine = line.isEmpty() ? word : line + " " + word;
+            if (sketch.textWidth(testLine) <= maxWidth) {
+                line = testLine;
+            } else {
+                height += lineHeight;
+                line = word;
+            }
+        }
+
+        if (!line.isEmpty() || height == 0) {
+            height += lineHeight; // Last line
+        }
+
+        return height;
     }
 
     public void display() {
@@ -70,15 +200,25 @@ public class ScanningScreen {
             // Clip the drawing to the scrollable area
             sketch.clip(sideMargin, scrollAreaTop, textBoxWidth, scrollAreaHeight);
 
-            float currentY = scrollAreaTop - scrollOffset;
-            float totalContentHeight = 0;
+            float yPosition = scrollAreaTop - scrollOffset;
+            float fileNameStartX = sideMargin + 20;
+            float fileNameMaxWidth = textBoxWidth - 50;
 
-             for (List<FileScanner.FileInfo> group : duplicateFiles.values()) {
-                for (FileScanner.FileInfo fileInfo : group) {
-                    sketch.text("  - " + fileInfo.file.getName(), sideMargin, currentY);
+             for (List<FileInfo> group : duplicateFiles.values()) {
+                for (FileInfo fileInfo : group) {
+                    String prefix = "  - ";
+                    String fileName = fileInfo.file.getName();
 
-                    currentY += 18f;
-                    totalContentHeight += 18f;
+                    sketch.text(prefix, fileNameStartX, yPosition);
+                    float prefixWidth = sketch.textWidth(prefix);
+                    float remainingWidth = fileNameMaxWidth - prefixWidth;
+
+                    float wrappedTextY = drawWrappedText(fileName, fileNameStartX + prefixWidth, yPosition, remainingWidth, lineHeight);
+
+                    float usedHeight = wrappedTextY - yPosition;
+                    float blankHeight = Math.max(entryHeight, usedHeight);
+                    
+                    yPosition += blankHeight;
                 }
             }
 
@@ -86,16 +226,17 @@ public class ScanningScreen {
             sketch.noClip();
 
             // Constrain scroll offset based on real content height
+            float totalContentHeight = calculateTotalContentHeight();
             scrollOffset = PApplet.constrain(scrollOffset, 0, Math.max(0f, totalContentHeight - scrollAreaHeight + 10f));
         }
 
         // Display scanning status text
         if (progressBar.isComplete()) {
             sketch.fill(0, 200, 0); // Green
-            sketch.text("COMPLETED", sketch.width / 2 - 30, sketch.height - 200);
+            sketch.text("COMPLETED", sketch.width / 2 - 30, sketch.height - 180);
         } else {
             sketch.fill(255, 204, 0); // Yellow
-            sketch.text("IN PROGRESS", sketch.width / 2 - 30, sketch.height - 200);
+            sketch.text("IN PROGRESS", sketch.width / 2 - 30, sketch.height - 180);
         }
 
         progressBar.display();
