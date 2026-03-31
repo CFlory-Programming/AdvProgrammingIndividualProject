@@ -368,8 +368,9 @@ public class ResultsScreen {
                     sketch.fill(subtextColor);
                     sketch.text("Modified: " + formatDate(fileInfo.lastModified), fileNameStartX, wrappedTextY);
                     sketch.text("Action: " + fileInfo.actionLabel, fileNameStartX, wrappedTextY + 14);
+                    sketch.text("File Directory: " fileInfo.getPath() + fileNameStartX, wrappedTextY + 14);
 
-                    float usedHeight = (wrappedTextY - yPosition) + 14; // Calculate the height used by the wrapped text
+                    float usedHeight = (wrappedTextY - yPosition) + 28; // Calculate the height used by the wrapped text
                     float usedEntryHeight = Math.max(iconSize + 26, usedHeight + 8); // Ensure enough space for the icon and metadata
 
                     yPosition += usedEntryHeight; // Move down for the next file
