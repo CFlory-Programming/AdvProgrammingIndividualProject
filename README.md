@@ -47,6 +47,17 @@
     - Displaying all the duplicate files in their respective groups
     - Getting all the files in a directory
 
+## How to Run the Project From an Executable
+
+1. Click the green ```Code``` button at the top
+2. Click ```Download ZIP```
+3. Unzip the file
+4. Navigate to the src directory in your file explorer
+5. Navigate to the folder with the name containing your specific device's operating system and chipset
+6. Run the executable
+    - For **Windows**, double click ```CarbonCopy.exe``` to **run**
+    - For **Mac**, double click ```CarbonCopy.app``` to **run**
+
 ## How to Run the Project From the Terminal
 
 1. Click the green ```Code``` button at the top
