@@ -52,7 +52,7 @@
 6. Run the executable
     - For **Windows**, double click ```CarbonCopy.exe``` to **run**
     - For **Mac**, double click ```CarbonCopy.app``` to **run**
-    - For **Linux and Raspberry Pi**, double click ```CarbonCopy.sh``` to **run**
+    - For **Linux**, double click ```CarbonCopy.sh``` to **run**
 
 ## How to Run the Project From the Terminal
 
