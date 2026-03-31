@@ -10,11 +10,6 @@
 ## Description
 - If multiple replica files were accidentally downloaded, for example two text files with the same content, this program will scan whichever directory you choose and show you which files are replicas, which aren't, why they were flagged as duplicates, and the option to delete the duplicates but keep the first downloaded version.
 
-## Installation Instructions
-1. Click on CarbonCopy.exe
-2. Download CarbonCopy.exe
-3. Open with admin privileges
-
 ## Feature List
 - File byte (content) detection
 - File size detection
