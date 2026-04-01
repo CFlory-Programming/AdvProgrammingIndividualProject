@@ -12,6 +12,8 @@ public class ResultsScreen {
     private boolean awaitingDeleteConfirmation;
 
     private Map<String, List<FileInfo>> duplicateFiles;
+    private long freedStorage;
+
     private float scrollOffset = 0;
     private float scrollSpeed = 15;
     private int iconSize = 30;
@@ -29,6 +31,7 @@ public class ResultsScreen {
         this.deleteButton = deleteButton;
         this.awaitingDeleteConfirmation = false;
         this.duplicateFiles = null;
+        this.freedStorage = 0;
 
         int buttonWidth = 120;
         int buttonHeight = 40;
@@ -41,6 +44,10 @@ public class ResultsScreen {
         confirmNoButton = new Button(sketch, centerX + 80, sketch.height - 120, buttonWidth, buttonHeight, "NO");
         confirmNoButton.setNormalColor(200, 0, 0);
         confirmNoButton.setHoverColor(255, 0, 0);
+    }
+
+    public void setStats(long freedStorage) {
+        this.freedStorage = freedStorage;
     }
     
     public void drawDeleteConfirmation() {
@@ -123,7 +130,7 @@ public class ResultsScreen {
 
         for (List<FileInfo> group : duplicateFiles.values()) {
             if (group.size() == 1) {
-                totalHeight += iconSize + 26;
+                totalHeight += iconSize + 150;
             }
         }
         return totalHeight;
@@ -230,7 +237,9 @@ public class ResultsScreen {
         sketch.fill(textColor);
         sketch.textAlign(PApplet.LEFT, PApplet.TOP);
         sketch.textSize(10);
-        sketch.text("Showing " + duplicateGroupCount + " duplicate groups and " + uniqueFileCount + " unique files", sideMargin, 30);
+        double freedKB = freedStorage / 1024.0;
+        String freedStorageText = String.format("Storage to be freed: %.2f KB", freedKB);
+        sketch.text("Showing " + duplicateGroupCount + " duplicate groups and " + uniqueFileCount + " unique files." + freedStorageText, sideMargin, 30);
 
         // Show the results if duplicate files
         if (duplicateFiles != null) {
@@ -307,9 +316,10 @@ public class ResultsScreen {
                             sketch.text("Reason: " + fileInfo.duplicateReason, fileNameStartX, wrappedTextY);
                             sketch.text("Modified: " + formatDate(fileInfo.lastModified), fileNameStartX, wrappedTextY + 14);
                             sketch.text("Action: " + fileInfo.actionLabel, fileNameStartX, wrappedTextY + 28);
+                            sketch.text("File Directory: " + fileInfo.file.getAbsolutePath(), fileNameStartX, wrappedTextY + 42);
 
-                            float usedHeight = (wrappedTextY - yPosition) + 28; // Calculate the height used by the wrapped text
-                            float blankHeight = Math.max(iconSize + 26, usedHeight + 15); // Ensure enough space for the icon and metadata
+                            float usedHeight = (wrappedTextY - yPosition) + 42; // Calculate the height used by the wrapped text
+                            float blankHeight = Math.max(iconSize + 26, usedHeight + 25); // Ensure enough space for the icon and metadata
                             yPosition += blankHeight; // Move down for the next file
                             continue;
                         }
@@ -368,10 +378,10 @@ public class ResultsScreen {
                     sketch.fill(subtextColor);
                     sketch.text("Modified: " + formatDate(fileInfo.lastModified), fileNameStartX, wrappedTextY);
                     sketch.text("Action: " + fileInfo.actionLabel, fileNameStartX, wrappedTextY + 14);
-                    sketch.text("File Directory: " fileInfo.getAbsolutePath() + fileNameStartX, wrappedTextY + 14);
+                    sketch.text("File Directory: " + fileInfo.file.getAbsolutePath(), fileNameStartX, wrappedTextY + 28);
 
                     float usedHeight = (wrappedTextY - yPosition) + 28; // Calculate the height used by the wrapped text
-                    float usedEntryHeight = Math.max(iconSize + 26, usedHeight + 8); // Ensure enough space for the icon and metadata
+                    float usedEntryHeight = Math.max(iconSize + 26, usedHeight + 25); // Ensure enough space for the icon and metadata
 
                     yPosition += usedEntryHeight; // Move down for the next file
                 }

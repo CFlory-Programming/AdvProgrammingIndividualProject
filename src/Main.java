@@ -130,6 +130,22 @@ public class Main extends PApplet {
             case SCANNING:
                 if (seeResultsButton.isMouseHovering() && progressBar.isComplete()) {
                     resultsScreen.setDuplicateFiles(duplicateFiles); // Pass the duplicate files to the results screen
+
+                    long freedStorage = 0;
+                    for (List<FileInfo> group : duplicateFiles.values()) {
+                        if (group.size() > 1) {
+                            // Find the file with the oldest modification time
+                            FileInfo leastRecentFile = group.get(0);
+                            for (FileInfo fileInfo : group) {
+                                if (fileInfo.lastModified < leastRecentFile.lastModified) {
+                                    leastRecentFile = fileInfo;
+                                }
+                            }
+
+                            freedStorage += leastRecentFile.fileSize;
+                        }
+                    }
+                    resultsScreen.setStats(freedStorage);
                     currentScreen = ScreenState.RESULTS;
                 }
                 break;
