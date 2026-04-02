@@ -21,6 +21,7 @@
 ## Platforms
 - MacOS
 - Windows
+- Linux
 
 ## Year Two Concepts
 1. **I/O and Excpetion Handling**
