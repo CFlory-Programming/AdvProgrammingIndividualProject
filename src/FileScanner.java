@@ -1,6 +1,9 @@
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import processing.core.PApplet;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.nio.file.Files;
@@ -9,20 +12,43 @@ public class FileScanner {
     public String rootPath;
     public boolean isRecursive;
 
+    private int totalFiles = 0;
+    private int scannedFiles = 0;
+
+    public interface ScanProgressListener {
+        void onProgressUpdate(float currentPercent, int scannedFiles, int totalFiles);
+    }
+
     // Scan for duplicates by reading the file's bytes (file content and file size)
-    public Map<String, List<FileInfo>> scanForDuplicates(File folder) {
+    public Map<String, List<FileInfo>> scanForDuplicates(File folder, ScanProgressListener listener) {
+        // Compute total number of files to scan for progress tracking
+        totalFiles = countSupportedFiles(folder);
+        scannedFiles = 0;
+
+        if (totalFiles == 0) {
+            if (listener != null) {
+                listener.onProgressUpdate(100f, 0, 0);
+            }
+        }
+
         // Initialize a map to group files depending on their content
         Map<String, List<FileInfo>> duplicateFiles = new HashMap<>();
 
-        scanFolderRecursively(folder, duplicateFiles);
+        scanFolderRecursively(folder, duplicateFiles, listener);
 
+        // After scanning all files, determine the reason for duplicates and which file to keep/delete
         determineDuplicateReasons(duplicateFiles);
+
+        // Set progress to 100% at the end of scanning
+        if (listener != null) {
+            listener.onProgressUpdate(100f, scannedFiles, totalFiles);
+        }
         
         // Return map containing all files so both the duplicate and non-duplicate files will be shown in the results screen
         return duplicateFiles;
     }
 
-    private void scanFolderRecursively(File folder, Map<String, List<FileInfo>> duplicateFiles) {
+    private void scanFolderRecursively(File folder, Map<String, List<FileInfo>> duplicateFiles, ScanProgressListener listener) {
         // Get all files and subdirectories in the selected folder
         File[] files = folder.listFiles(); // Gets an array of all the files and subdirectories in the selected folder
         if (files != null) {
@@ -45,15 +71,42 @@ public class FileScanner {
                             fileList.add(fileInfo);
                             duplicateFiles.put(contentKey, fileList);
                         }
+
+                        if (listener != null && totalFiles > 0) {
+                            scannedFiles++;
+                            float progressPercent = ((float) scannedFiles / (float) totalFiles) * 100f;
+                            listener.onProgressUpdate(PApplet.constrain(progressPercent, 0f, 99.5f), scannedFiles, totalFiles); // Cap progress at 99.5% until the end to allow the progress bar to fill up smoothly in the final step
+                        }
                     } catch (Exception e) {
                         System.out.println("Error reading file: " + file.getName());
+
+                        if (listener != null && totalFiles > 0) {
+                            scannedFiles++;
+                            float progressPercent = ((float) scannedFiles / (float) totalFiles) * 100f;
+                            listener.onProgressUpdate(PApplet.constrain(progressPercent, 0f, 99.5f), scannedFiles, totalFiles); // Cap progress at 99.5% until the end to allow the progress bar to fill up smoothly in the final step
+                        }
                     }
                 } else if (file.isDirectory()) {
                     // Recursively scan subdirectories
-                    scanFolderRecursively(file, duplicateFiles);
+                    scanFolderRecursively(file, duplicateFiles, listener);
                 }
             }
         }
+    }
+
+    private int countSupportedFiles(File folder) {
+        int count = 0;
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && isSupportedFileType(file.getName())) {
+                    count++;
+                } else if (file.isDirectory()) {
+                    count += countSupportedFiles(file); // Recursively count files in subdirectories
+                }
+            }
+        }
+        return count;
     }
 
     private boolean isSupportedFileType(String name) {

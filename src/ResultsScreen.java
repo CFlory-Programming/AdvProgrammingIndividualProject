@@ -239,7 +239,7 @@ public class ResultsScreen {
         sketch.textSize(10);
         double freedKB = freedStorage / 1024.0;
         String freedStorageText = String.format("Storage to be freed: %.2f KB", freedKB);
-        sketch.text("Showing " + duplicateGroupCount + " duplicate groups and " + uniqueFileCount + " unique files." + freedStorageText, sideMargin, 30);
+        sketch.text("Showing " + duplicateGroupCount + " duplicate groups and " + uniqueFileCount + " unique files." + freedStorageText + ".", sideMargin, 30);
 
         // Show the results if duplicate files
         if (duplicateFiles != null) {
@@ -391,8 +391,24 @@ public class ResultsScreen {
             sketch.noClip();
 
             // Constrain scroll offset based on real content height
-            float expectedContentHeight = calculateTotalContentHeight();
-            scrollOffset = PApplet.constrain(scrollOffset, 0f, PApplet.max(0f, expectedContentHeight - scrollAreaHeight));
+            float totalContentHeight = calculateTotalContentHeight();
+            float maxScrollOffset = PApplet.max(0f, totalContentHeight - scrollAreaHeight);
+            scrollOffset = PApplet.constrain(scrollOffset, 0f, maxScrollOffset);
+
+            // Draw little scroll bar based on content height
+            if (totalContentHeight > scrollAreaHeight && maxScrollOffset > 0) {
+                float scrollBarHeight = PApplet.max(20f, (scrollAreaHeight / totalContentHeight) * scrollAreaHeight);
+                float scrollBarY = scrollAreaTop + (scrollOffset / maxScrollOffset) * (scrollAreaHeight - scrollBarHeight);
+                float scrollBarX = sketch.width - sideMargin;
+                float scrollBarWidth = 6;
+
+                sketch.fill(230);
+                sketch.noStroke();
+                sketch.rect(scrollBarX, scrollAreaTop, scrollBarWidth, scrollAreaHeight, 3);
+
+                sketch.fill(120, 120, 240);
+                sketch.rect(scrollBarX, scrollBarY, scrollBarWidth, scrollBarHeight, 3);
+            }
         }
 
         if (awaitingDeleteConfirmation) {

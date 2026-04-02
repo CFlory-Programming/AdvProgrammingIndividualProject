@@ -227,16 +227,38 @@ public class ScanningScreen {
 
             // Constrain scroll offset based on real content height
             float totalContentHeight = calculateTotalContentHeight();
-            scrollOffset = PApplet.constrain(scrollOffset, 0, Math.max(0f, totalContentHeight - scrollAreaHeight + 10f));
+            float maxScrollOffset = PApplet.max(0f, totalContentHeight - scrollAreaHeight + 10f);
+            scrollOffset = PApplet.constrain(scrollOffset, 0, maxScrollOffset);
+
+            // Draw little scroll bar based on content height
+            if (totalContentHeight > scrollAreaHeight && maxScrollOffset > 0) {
+                float scrollBarHeight = PApplet.max(20f, (scrollAreaHeight / totalContentHeight) * scrollAreaHeight);
+                float scrollBarY = scrollAreaTop + (scrollOffset / maxScrollOffset) * (scrollAreaHeight - scrollBarHeight);
+                float scrollBarX = sketch.width - sideMargin;
+                float scrollBarWidth = 6;
+
+                sketch.fill(230);
+                sketch.noStroke();
+                sketch.rect(scrollBarX, scrollAreaTop, scrollBarWidth, scrollAreaHeight, 3);
+
+                sketch.fill(120, 120, 240);
+                sketch.rect(scrollBarX, scrollBarY, scrollBarWidth, scrollBarHeight, 3);
+            }
         }
 
-        // Display scanning status text
+        // Display scanning status text and progress bar percentage text
+        String progressBarText = String.format("Progress: %.0f%%", progressBar.getProgress());
+        sketch.fill(0);
+        sketch.textSize(12);
+        sketch.textAlign(PApplet.CENTER, PApplet.TOP);
+        sketch.text(progressBarText, sketch.width / 2, sketch.height - 210);
+        
         if (progressBar.isComplete()) {
             sketch.fill(0, 200, 0); // Green
-            sketch.text("COMPLETED", sketch.width / 2 - 30, sketch.height - 180);
+            sketch.text("COMPLETED", sketch.width / 2, sketch.height - 180);
         } else {
             sketch.fill(255, 204, 0); // Yellow
-            sketch.text("IN PROGRESS", sketch.width / 2 - 30, sketch.height - 180);
+            sketch.text("IN PROGRESS", sketch.width / 2, sketch.height - 180);
         }
 
         progressBar.display();

@@ -242,16 +242,21 @@ public class Main extends PApplet {
         selectedFolderPath = selectedFolder.getAbsolutePath(); // The user/desktop/AdvProgrammingIndividualProject thing, it can get LONG
         System.out.println("Folder path selected: " + selectedFolderPath);
 
-        // Call the method in FileScanner.java
-        duplicateFiles = fileScanner.scanForDuplicates(selectedFolder);
-
-        // Set the duplicate files in the scanning screen
-        scanningScreen.setDuplicateFiles(duplicateFiles);
+        scanningScreen.setSelectedFolderPath(selectedFolderPath); // Pass the selectedf folder path to the scanning screen
 
         // Switch to the scanning screen
         currentScreen = ScreenState.SCANNING;
 
-        scanningScreen.setSelectedFolderPath(selectedFolderPath); // Pass the selected folder path to the scanning screen
+        // Scan the fules on a background thread so the UI doesn't freeze for 30 seconds like it did with the admin folder
+        new Thread(() -> {
+            duplicateFiles = fileScanner.scanForDuplicates(selectedFolder, (currentPercent, processed, total) -> {
+                progressBar.setTargetProgress(currentPercent);
+            });
+
+            // Once scanning is done, store the results in the scanning screen and enable the "See Results" button
+            scanningScreen.setDuplicateFiles(duplicateFiles);
+            progressBar.setTargetProgress(100f);
+        }).start();
     }
 
     private void goHome() {
@@ -267,6 +272,10 @@ public class Main extends PApplet {
         progressBar.reset();
 
         statsScreen.setStats(0, 0);
+
+        resultsScreen.setStats(0);
+        progressBar.reset();
+        progressBar.setTargetProgress(0f);
 
         currentScreen = ScreenState.MAIN;
     }
