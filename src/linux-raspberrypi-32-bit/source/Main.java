@@ -12,7 +12,7 @@ public class Main extends PApplet {
 
     public static PApplet sketch;
 
-    private boolean deleteFunctionality = false; // TESTING!!!!!!!!!!!!!!
+    private boolean deleteFunctionality = false; // Testing: true Production: false
 
     // Export log
     private Path folderPath = Path.of("exports");
@@ -22,7 +22,7 @@ public class Main extends PApplet {
     private Button seeResultsButton;
     private Button deleteButton;
     private ProgressBar progressBar;
-    private String selectedFolderPath = "No folder selected";
+    private String selectedFolderPath = "No folder selected. Please select a folder.";
 
     // Screen state tracking
     private enum ScreenState {WARNING, MAIN, SCANNING, RESULTS, STATS} // Enumeration
@@ -122,7 +122,7 @@ public class Main extends PApplet {
                 if (folderSelectButton.isMouseHovering()) {
                     if (duplicateFiles != null) {
                         duplicateFiles = null; // Clear the previous results if the user clicks the button again to select a new folder
-                        selectedFolderPath = "No folder selected"; // Reset the displayed folder path
+                        selectedFolderPath = "No folder selected. Please select a folder."; // Reset the displayed folder path
                     }
                     openFileBrowser();
                 }
@@ -262,7 +262,7 @@ public class Main extends PApplet {
     private void goHome() {
         // Reset state so user can start over
         duplicateFiles = null;
-        selectedFolderPath = "No folder selected";
+        selectedFolderPath = "No folder selected. Please select a folder.";
 
         scanningScreen.setSelectedFolderPath(selectedFolderPath);
         scanningScreen.setDuplicateFiles(null);

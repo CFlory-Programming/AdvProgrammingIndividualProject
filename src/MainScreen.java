@@ -12,7 +12,7 @@ public class MainScreen {
     public MainScreen(PApplet sketch, Button folderSelectButton) {
         this.sketch = sketch;
         this.folderSelectButton = folderSelectButton;
-        this.selectedFolderPath = "No folder selected";
+        this.selectedFolderPath = "No folder selected. Please select a folder.";
         this.duplicateFiles = null;
     }
 

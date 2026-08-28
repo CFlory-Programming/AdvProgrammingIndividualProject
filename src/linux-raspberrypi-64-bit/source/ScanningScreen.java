@@ -17,7 +17,7 @@ public class ScanningScreen {
         this.sketch = sketch;
         this.seeResultsButton = seeResultsButton;
         this.progressBar = progressBar;
-        this.selectedFolderPath = "No folder selected";
+        this.selectedFolderPath = "No folder selected. Please select a folder.";
         this.duplicateFiles = null;
     }
 
